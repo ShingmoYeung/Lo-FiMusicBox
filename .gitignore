@@ -1,0 +1,23 @@
+# SwiftPM 构建产物
+.build/
+Package.resolved
+
+# 打包产物（dmg/zip/.app）由 scripts/package-macos-app.sh 重新生成，不入版本控制
+dist/
+
+# Xcode 项目文件（如果未来本地生成 .xcodeproj，避免误提交）
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# 图标流水线的中间预览产物
+preview-appicon-*.png
+AppIcon.iconset/
+
+# macOS Finder 元数据
+.DS_Store
+
+# 编辑器临时文件
+*.swp
+*.swo
+*~

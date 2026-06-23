@@ -1,0 +1,103 @@
+[
+  {
+    "id": "bundled.lofi-girl",
+    "name": "Lofi Girl",
+    "category": "Lo-Fi",
+    "type": "bilibili",
+    "url": "https://live.bilibili.com/27519423",
+    "style1": "Lo-Fi",
+    "style2": "Chill",
+    "scene": "学习",
+    "custom": "最稳定",
+    "customTags": []
+  },
+  {
+    "id": "bundled.lofi-box",
+    "name": "Lofi Box",
+    "category": "Lo-Fi",
+    "type": "mp3",
+    "url": "https://boxradio-edge-00.streamafrica.net/lofi",
+    "style1": "Lo-Fi",
+    "style2": "Chill",
+    "scene": "学习",
+    "custom": "高性能",
+    "customTags": []
+  },
+  {
+    "id": "bundled.chill-wave",
+    "name": "Chill Wave",
+    "category": "Chill",
+    "type": "mp3",
+    "url": "https://boxradio-edge-00.streamafrica.net/chillwave",
+    "style1": "Chill",
+    "style2": "Electro",
+    "scene": "放松",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-chilling",
+    "name": "Chilling",
+    "category": "Chill",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/chilling/playlist.m3u",
+    "style1": "Chill",
+    "style2": "Loficafe",
+    "scene": "冷静",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-sleeping",
+    "name": "Sleeping",
+    "category": "Sleep",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/sleeping/playlist.m3u",
+    "style1": "Sleeping",
+    "style2": "Loficafe",
+    "scene": "助眠",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-working",
+    "name": "Working",
+    "category": "Work",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/working/playlist.m3u",
+    "style1": "Working",
+    "style2": "Loficafe",
+    "scene": "工作",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-studying",
+    "name": "Studying",
+    "category": "Study",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/studying/playlist.m3u",
+    "style1": "Studying",
+    "style2": "Loficafe",
+    "scene": "学习",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-gaming",
+    "name": "Gaming",
+    "category": "Game",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/gaming/playlist.m3u",
+    "style1": "Gaming",
+    "style2": "Loficafe",
+    "scene": "娱乐",
+    "customTags": []
+  },
+  {
+    "id": "bundled.loficafe-japanese-lofi",
+    "name": "Japanese Lofi",
+    "category": "Japanese Lo-Fi",
+    "type": "mp3",
+    "url": "https://radio.loficafe.net/public/japanese-lofi/playlist.m3u",
+    "style1": "Japanese Lofi",
+    "style2": "Loficafe",
+    "scene": "日式Lo-Fi",
+    "customTags": []
+  }
+]
