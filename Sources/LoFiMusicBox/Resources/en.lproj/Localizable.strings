@@ -52,6 +52,10 @@
 "language.zh_hk" = "Traditional Chinese (Hong Kong)";
 "language.zh_tw" = "Traditional Chinese (Taiwan)";
 "language.en" = "English";
+"general.section.playback" = "Playback";
+"general.playback_aura.picker" = "Playback Aura";
+"general.playback_aura.help" = "Controls the intensity of the visual aura around the record while playing.";
+"general.playback_aura.footer" = "Only affects the playback view visuals. It does not change audio playback or station availability checks.";
 "data.storage_location" = "Data Storage Location";
 "data.open_in_finder" = "Open in Finder";
 "data.copy_path" = "Copy Path";

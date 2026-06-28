@@ -52,6 +52,10 @@
 "language.zh_hk" = "繁體中文（香港）";
 "language.zh_tw" = "繁體中文（台灣）";
 "language.en" = "English";
+"general.section.playback" = "播放体验";
+"general.playback_aura.picker" = "播放氛围";
+"general.playback_aura.help" = "控制播放时唱片周围的氛围动效强度。";
+"general.playback_aura.footer" = "只影响播放界面的视觉氛围，不影响音频播放或频道可用性检测。";
 "data.storage_location" = "数据存储位置";
 "data.open_in_finder" = "在 Finder 中打开";
 "data.copy_path" = "复制路径";

@@ -10,25 +10,6 @@ struct HealthCheckSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Picker(
-                    LocalizedStrings.text("availability.aura.picker"),
-                    selection: Binding(
-                        get: { settings.playbackAuraIntensity },
-                        set: { settings.updatePlaybackAuraIntensity($0) }
-                    )
-                ) {
-                    ForEach(PlaybackAuraIntensity.allCases) { intensity in
-                        Text(intensity.displayName).tag(intensity)
-                    }
-                }
-                .help(LocalizedStrings.text("availability.aura.help"))
-            } header: {
-                Text(LocalizedStrings.text("availability.section.aura"))
-            } footer: {
-                Text(LocalizedStrings.text("availability.aura.footer"))
-            }
-
-            Section {
                 Toggle(
                     LocalizedStrings.text("availability.auto.enable"),
                     isOn: Binding(

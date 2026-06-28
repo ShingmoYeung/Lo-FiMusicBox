@@ -2,10 +2,11 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// macOS 偏好设置窗口（Cmd+, 触发）。当前包含四个分页：
+/// macOS 偏好设置窗口（Cmd+, 触发）。当前包含五个分页：
+/// - 通用：应用语言、播放体验；
 /// - 频道管理：增删改自定义频道、编辑或隐藏内置频道；
 /// - 数据管理：查看并打开用户数据目录；
-/// - 可用性检测：自动检测开关、检测频率、立刻检测按钮；
+/// - 可用性检测：自动检测、手动检测、结果分布；
 /// - 关于：版本与说明信息。
 struct SettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
@@ -67,6 +68,25 @@ private struct GeneralSettingsView: View {
                 Text(LocalizedStrings.text("language.section"))
             } footer: {
                 Text(LocalizedStrings.text("language.help"))
+            }
+
+            Section {
+                Picker(
+                    LocalizedStrings.text("general.playback_aura.picker"),
+                    selection: Binding(
+                        get: { appSettings.playbackAuraIntensity },
+                        set: { appSettings.updatePlaybackAuraIntensity($0) }
+                    )
+                ) {
+                    ForEach(PlaybackAuraIntensity.allCases) { intensity in
+                        Text(intensity.displayName).tag(intensity)
+                    }
+                }
+                .help(LocalizedStrings.text("general.playback_aura.help"))
+            } header: {
+                Text(LocalizedStrings.text("general.section.playback"))
+            } footer: {
+                Text(LocalizedStrings.text("general.playback_aura.footer"))
             }
         }
         .formStyle(.grouped)
