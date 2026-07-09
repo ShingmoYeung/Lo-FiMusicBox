@@ -37,9 +37,9 @@ struct StationHealthService {
         }
     }
 
-    private func checkStream(_ url: URL) async throws -> ProbeResult {
+    private func checkStream(_ url: URL, headers: [String: String] = [:]) async throws -> ProbeResult {
         do {
-            let head = try await request(url, method: AppConstants.StationHealthCheck.httpHeadMethod)
+            let head = try await request(url, method: AppConstants.StationHealthCheck.httpHeadMethod, headers: headers)
             if head.isSuccessful {
                 return ProbeResult(
                     status: head.isAudioLike ? .available : .unstable,
@@ -54,14 +54,10 @@ struct StationHealthService {
             // 很多电台服务不支持 HEAD，请求失败时改用小范围 GET 探测。
         }
 
-        let range = try await request(
-            url,
-            method: AppConstants.StationHealthCheck.httpGetMethod,
-            headers: [
-                AppConstants.StationHealthCheck.rangedProbeHeaderName:
-                    AppConstants.StationHealthCheck.rangedProbeHeaderValue
-            ]
-        )
+        var rangeHeaders = headers
+        rangeHeaders[AppConstants.StationHealthCheck.rangedProbeHeaderName] =
+            AppConstants.StationHealthCheck.rangedProbeHeaderValue
+        let range = try await request(url, method: AppConstants.StationHealthCheck.httpGetMethod, headers: rangeHeaders)
         return ProbeResult(
             status: range.isSuccessful ? .available : .unavailable,
             statusCode: range.statusCode,
@@ -148,6 +144,7 @@ struct StationHealthService {
 
         return HTTPProbeResponse(data: data, response: httpResponse)
     }
+
 }
 
 private struct ProbeResult {

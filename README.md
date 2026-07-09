@@ -1,172 +1,198 @@
-# Lo-Fi Music Box（macOS）
+# Lo-Fi Music Box
 
-Lo-Fi Music Box 是一个轻量原生的 macOS 桌面音乐盒小组件，围绕 Lo-Fi 电台播放、频道管理、可用性检测和专注计时打造。
+<p align="center">
+  <img src="docs/images/lo-fi-music-box-icon.png" alt="Lo-Fi Music Box" width="180" />
+</p>
 
-## 项目目标
+<p align="center">
+  一台会转的复古 macOS 桌面音乐盒。<br/>
+  A tiny retro-turntable music box that lives on your macOS desktop.
+</p>
 
-- **内置氛围频道**：内置 Lo-Fi / Chill / Loficafe 等频道，保留菜单栏入口、播放/暂停、专注时长统计等核心体验。
-- **新增频道管理**：在不破坏内置频道数据的前提下，支持自定义新增、隐藏内置、覆盖内置（仅保存差异字段）的频道维护方式。
-- **新增可用性检测**：单频道按需检测 + 全量批量检测 + 后台周期性自动检测，结果会反映在频道列表的可用性排序上。
-- **macOS 原生体验**：复古唱机 3D 拟物交互、frameless 圆角悬浮小组件、菜单栏常驻入口、`Cmd+,` 偏好设置面板。
+<p align="center">
+  <a href="#-下载与安装"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-c48a5b?style=flat-square"></a>
+  <a href="#-开源协议"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+  <a href="#"><img alt="macOS" src="https://img.shields.io/badge/macOS-14%2B-lightgrey.svg?style=flat-square"></a>
+  <a href="#"><img alt="Swift" src="https://img.shields.io/badge/Swift-6-orange.svg?style=flat-square"></a>
+  <a href="#"><img alt="Universal 2" src="https://img.shields.io/badge/Universal%202-arm64%20%2B%20x86__64-brightgreen.svg?style=flat-square"></a>
+</p>
 
-## 功能亮点
+Lo-Fi Music Box 是一个 SwiftUI + AppKit 编写的 macOS 小组件，围绕"专注氛围电台"打造：内置 Lo-Fi / Chill 电台、支持你自己添加 MP3 直连流 / HLS 直播 / 哔哩哔哩直播间，配一台 3D 拟物唱机、菜单栏常驻入口、频道可用性检测和番茄式专注计时。
 
-- **3D 拟物唱机**：黑胶旋转、唱针带 3D 透视的"抬-落"动画，播放时唱针贴向黑胶中央、暂停时垂直立在底座上。
-- **切歌"换片"动画**：上一首/下一首/切换频道时，唱针先抬到垂直中位、停顿，然后落回播放姿态——模拟现实换唱片体验。
-- **frameless 悬浮小组件**：360×248 圆角窗口，无系统 titlebar、无底部透明带、整窗可拖拽，自绘 macOS 红绿灯按钮收纳到顶部，与系统习惯一致。
-- **一体化复古木质唱机**：整个小组件是一台连续的木质机身（对齐应用图标的实物语言）——唱盘嵌在机身顶面、频道名与标签显示在嵌入木面的深色"显示屏"上（深靛蓝主题延续于此）、黄铜音量调谐与播放/切台控件做在同一台机身的前面板上。
-- **菜单栏常驻**：`MenuBarExtra` 固定一个复古收音机图标（`radio.fill` / `radio` 区分播放/暂停），下拉菜单可一键切到任意频道。
-- **频道管理面板**：`Cmd+,` 打开设置面板，集中管理通用、频道、数据、可用性检测与关于信息。
-- **健康检测**：HEAD/GET 探针 + HLS manifest 校验；可选 `5 / 10 / 30 / 60 分钟` 自动间隔，可选"仅播放空闲时检测"。
-- **专注时长统计**：每分钟 tick 累计今日/历史专注分钟数，菜单栏直接显示当日时长，保留近 90 天历史。
+零第三方依赖，全部走系统 AVFoundation + SwiftUI + AppKit，打包出来就是一份能双击运行的 `.app`。
 
-## 技术栈
+---
 
-| 维度 | 选型 | 备注 |
-| --- | --- | --- |
-| 主语言 | Swift 6 | 使用 Swift 6 并发检查 |
-| Package 工具 | SwiftPM tools-version `6.0` | 不锁死过新的包描述能力 |
-| 集成开发 | Xcode 26.x | 仅 IDE 调试需要，命令行 `swift build` 也能完整构建 |
-| 部署目标 | macOS 14+ | 覆盖 SwiftUI、`MenuBarExtra`、AVFoundation 等原生能力 |
-| UI | SwiftUI + AppKit 互操作 | SwiftUI 主体，AppKit 用于 `NSWindow` 自定义、菜单栏 |
-| 播放 | AVFoundation | MP3/HLS 直接走 `AVPlayer`，Bilibili 直播先解析为 HLS 再走 `AVPlayer` |
-| 第三方依赖 | 无 | 仅依赖系统框架，便于打包、签名和产出 Universal 2 |
+## 目录
 
-## 目录结构
+- [功能亮点](#-功能亮点)
+- [截图](#-截图)
+- [下载与安装](#-下载与安装)
+- [从源码构建](#-从源码构建)
+- [数据与偏好](#-数据与偏好)
+- [键盘快捷键](#-键盘快捷键)
+- [项目结构](#-项目结构)
+- [开发约定](#-开发约定)
+- [路线图](#-路线图)
+- [赞赏支持](#-赞赏支持)
+- [开源协议](#-开源协议)
 
-```
-LoFiMusicBox/
-├── Package.swift
-├── README.md                          # 本文档
-├── docs/                              # 详细设计与流水线文档
-│   ├── icon-pipeline.md               # 应用图标资源约定
-│   └── changelog.md                   # 产品里程碑
-├── scripts/
-│   ├── build-app-icon.sh              # 校验 assets/AppIcon.icns 是否就绪
-│   └── package-macos-app.sh           # Universal 2 SwiftPM build + .app + zip + dmg
-├── assets/                             # 已定稿的 AppIcon.icns（不随 SwiftPM 资源包分发）
-├── dist/                              # 打包产物（打包脚本会清空重建）
-└── Sources/LoFiMusicBox/
-    ├── LoFiMusicBoxApp.swift       # @main 入口，组装服务和 Scene
-    ├── Models/
-    │   └── Station.swift              # Station / 来源 / 健康状态模型
-    ├── Persistence/
-    │   └── StationRepository.swift    # 多 JSON 文件合并与持久化
-    ├── Playback/
-    │   ├── StationPlayer.swift        # 播放器协议
-    │   ├── AVStationPlayer.swift      # MP3 / HLS / Bilibili 解析后 HLS 播放
-    │   └── PlaybackCoordinator.swift  # UI 与菜单栏共享的播放协调器
-    ├── Services/
-    │   ├── AppDelegate.swift           # AppKit 生命周期桥接
-    │   ├── AppSettingsStore.swift     # UserDefaults 偏好（音量、上次频道、检测设置）
-    │   ├── BilibiliStreamResolver.swift # Bilibili 直播间解析为 HLS 直链
-    │   ├── FocusTimeService.swift     # 专注时长统计
-    │   ├── MainWindowCoordinator.swift # 主窗口显示/隐藏与菜单栏模式协调
-    │   ├── StationHealthService.swift # 单频道可用性检测
-    │   └── ScheduledHealthChecker.swift # 周期性自动检测
-    ├── Support/
-    │   ├── AppConstants.swift         # 全部业务/UI 常量集中地
-    │   ├── AppResourceBundle.swift    # SwiftPM 资源包运行时定位
-    │   └── LocalizedStrings.swift     # 本地化字符串读取
-    ├── Resources/
-    │   ├── BundledStations.json       # 内置频道（只读）
-    │   ├── en.lproj/                  # 英文本地化
-    │   ├── zh-Hans.lproj/             # 简体中文本地化
-    │   ├── zh-HK.lproj/               # 香港繁体本地化
-    │   └── zh-Hant.lproj/             # 繁体中文本地化
-    └── UI/
-        ├── PlayerTheme.swift          # 颜色、圆角、阴影、黄铜/木质控制台主题
-        ├── WindowConfigurator.swift   # NSWindow frameless / borderless 自定义
-        ├── ContentView.swift          # 主小组件视图
-        ├── VinylRecordView.swift      # 3D 唱机 + 唱针动画
-        ├── ConsoleControls.swift      # 黄铜音量滑杆 + 传输圆钮 + 播放主键
-        ├── FlowLayout.swift           # 自动换行的流式布局（标签胶囊共用）
-        ├── InteractiveCursor.swift    # 交互控件手形光标修饰器
-        ├── StationListOverlay.swift   # 频道切换覆盖层
-        ├── SettingsView.swift         # `Cmd+,` 五页设置（通用/频道/数据/可用性/关于）
-        ├── StationManagementView.swift # 频道增删改 / 检测
-        └── HealthCheckSettingsView.swift # 可用性检测开关 / 频率 / 立即检测
+---
+
+## ✨ 功能亮点
+
+- **一体化复古唱机**：整窗就是一台连续木质机身，唱盘嵌在顶面、深色琥珀数显屏显示频道信息、黄铜控制台做在前面板上。
+- **3D 拟物换片动画**：黑胶旋转 + 唱针带 3D 透视的"抬-落"动画，切歌时先抬针到中位、停顿、再落回——模拟实体唱机换片。
+- **菜单栏常驻**：`MenuBarExtra` 固定一枚复古收音机图标，下拉菜单可一键切到任意频道，主窗口保持无 titlebar 的悬浮体验。
+- **频道管理面板**：`Cmd+,` 打开设置面板，支持增删自定义频道、编辑或隐藏内置频道；内置频道修改仅保存差异字段，App 升级不覆盖你的改动。
+- **可用性检测**：单频道按需检测 + 全量批量检测 + 后台周期性自动检测（`5 / 10 / 30 / 60` 分钟可选，支持"仅播放空闲时"），结果反映在频道排序上。
+- **哔哩哔哩直播原生播放**：把直播间地址直接当频道，App 解析成 HLS 直链交给 AVPlayer 播；主播未开播时会明确标不可用，不会假装能播。
+- **专注时长统计**：每分钟 tick 累计今日/历史专注分钟数，菜单栏直接显示当日时长，保留近 90 天历史；胶囊可点击重置，做番茄式计时。
+- **换盘面主题**：内置 6 款黑胶盘面 + 印字（`MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD`），复用"抬针—换片—落针"动画切换。
+- **多语言**：内置简体中文 / 繁体中文（台湾） / 繁体中文（香港） / English 四种界面语言，实时切换。
+
+## 📸 截图
+
+<p align="center">
+  <img src="docs/images/menubar-turntable-preview.png" alt="Menu bar turntable preview" width="720" />
+</p>
+
+（更多主界面 / 频道管理 / 设置面板截图欢迎社区补充；提 PR 时可以把截图放到 `docs/images/preview/`。）
+
+## 📦 下载与安装
+
+Lo-Fi Music Box 目前采用 **ad-hoc 签名**（`codesign -`），未经 Apple 公证——你在打开时可能需要在系统「设置 → 隐私与安全性」里点击"仍要打开"授权一次。这个限制对开源分发是正常的；正式做 App Store 或 Developer ID 分发前不会强制去做公证。
+
+- 从 GitHub Releases 下载 `LoFiMusicBox-macOS.zip` 或 `.dmg`，把 `Lo-Fi Music Box.app` 拖进 `/Applications` 即可；
+- 或者按下面的[从源码构建](#-从源码构建)自行打包，产物同样在 `dist/` 下。
+
+系统要求：**macOS 14 或更新**（Universal 2，同时支持 Apple Silicon 与 Intel）。
+
+## 🛠 从源码构建
+
+依赖：
+
+- macOS 14+
+- Xcode 26.x（提供 Swift 6 toolchain）；命令行 `swift build` 一样可以完整构建，不需要打开 Xcode。
+
+```bash
+git clone https://github.com/ShingmoYeung/Lo-FiMusicBox.git
+cd Lo-FiMusicBox
+
+swift run
+
+./scripts/package-macos-app.sh
+./scripts/package-macos-app.sh --no-dmg
 ```
 
-## 数据持久化
+打包脚本会：
 
-频道维护使用本地 JSON 文件（不引入 SQLite，原因是数据量小、便于调试和备份）：
+1. 校验 `assets/AppIcon.icns` 存在且非空（应用图标已预置，不再由脚本生成）；
+2. 清理 `.build/` 与 `dist/`，避免上次的中间产物被复用；
+3. `swift build -c release --arch arm64 --arch x86_64` 产出 Universal 2 release 二进制；
+4. 组装 `.app` bundle（含 `Info.plist` 与 `CFBundleIconFile=AppIcon`），拷贝 `assets/AppIcon.icns`；
+5. `codesign --force --deep --sign -` 做 ad-hoc 签名，方便本机分发；
+6. `ditto` 生成 zip；
+7. `hdiutil create` 生成"拖入 Applications"式 UDZO 压缩 dmg：DMG 内同时包含 `.app` 和一个指向系统 `/Applications` 的软链接，双击 dmg 后把 App 拖到 Applications 图标上即可完成安装。
+
+打包脚本**不会**替你去改 `/Applications` 里已有的 App，安装步骤留给你在 DMG 里手动完成，符合 macOS 用户对开源应用分发的通用预期。
+
+## 💾 数据与偏好
+
+频道数据用几份纯 JSON 保存，方便你直接备份和 diff（不引入 SQLite）：
 
 | 文件 | 位置 | 内容 |
 | --- | --- | --- |
-| `BundledStations.json` | App 资源（只读） | 内置频道原始数据 |
-| `custom-stations.json` | `~/Library/Application Support/Lo-Fi Music Box/` | 用户新增的自定义频道 |
-| `bundled-overrides.json` | 同上 | 用户对内置频道的字段级修改（仅保存差异） |
-| `hidden-bundled-ids.json` | 同上 | 用户隐藏的内置频道 ID 列表 |
-| `favorite-station-ids.json` | 同上 | 用户收藏的频道 ID 列表 |
-| `station-health.json` | 同上 | 各频道最近一次可用性检测结果 |
+| `BundledStations.json` | App 资源（只读） | 随 App 分发的内置频道 |
+| `custom-stations.json` | `~/Library/Application Support/Lo-Fi Music Box/` | 你自己添加的自定义频道 |
+| `bundled-overrides.json` | 同上 | 对内置频道的字段级修改，仅存差异 |
+| `hidden-bundled-ids.json` | 同上 | 被你隐藏的内置频道 ID |
+| `favorite-station-ids.json` | 同上 | 收藏的频道 ID |
+| `station-health.json` | 同上 | 每个频道最近一次可用性检测结果 |
 
-轻量偏好走 `UserDefaults`：上次频道 ID、音量、可用性检测开关/频率/空闲条件、近 90 天专注历史等。
+轻量偏好走 `UserDefaults`：上次频道 ID、音量、可用性检测开关/频率/空闲条件、近 90 天专注历史。
 
-## 键盘快捷键
+设置面板里的【数据管理】可以：一键在 Finder 里打开数据目录、复制路径、导出/导入自定义频道 JSON。
 
-主小组件聚焦时（`MenuBarExtra` 不抢焦点，主窗口需要 `WindowConfigurator` 中的 `canBecomeKeyWindow` swizzle 才能接收键盘事件）：
+## ⌨️ 键盘快捷键
+
+主小组件聚焦时（`MenuBarExtra` 不抢焦点，主窗口通过 `WindowConfigurator` 里的 `canBecomeKeyWindow` swizzle 接收键盘事件）：
 
 | 按键 | 行为 |
 | --- | --- |
 | `Space` | 播放 / 暂停 |
 | `←` | 上一首 |
 | `→` | 下一首 |
-| `Cmd+,` | 打开偏好设置（频道管理 / 健康检测 / 关于） |
-| `Cmd+N` | 频道管理面板内新建自定义频道 |
-| `Cmd+W` | 关闭弹出对话框 |
+| `⌘ M` | 静音 / 取消静音 |
+| `⌘ R` | 在可用频道里随机选一台 |
+| `⌘ ,` | 打开偏好设置 |
+| `⌘ N` | 频道管理面板内新建自定义频道 |
+| `⌘ W` | 关闭弹出对话框 |
 
-## 应用图标
+## 🗂 项目结构
 
-打包直接使用 `assets/AppIcon.icns` 中已经定稿的应用图标，不再通过脚本从 PNG 生成或覆盖图标文件。`scripts/build-app-icon.sh` 仅作为兼容入口保留，用来校验 `assets/AppIcon.icns` 是否存在且非空。
-
-图标资源约定见 [`docs/icon-pipeline.md`](docs/icon-pipeline.md)。
-
-```bash
-# 校验默认图标
-./scripts/build-app-icon.sh
+```
+LoFiMusicBox/
+├── Package.swift
+├── README.md
+├── CHANGELOG.md
+├── LICENSE
+├── docs/
+│   ├── changelog.md              # 详细产品/技术里程碑
+│   ├── icon-pipeline.md          # 应用图标资源约定
+│   └── images/                   # 图标 / 截图 / 打赏二维码
+├── scripts/
+│   ├── build-app-icon.sh         # 校验 assets/AppIcon.icns 是否就绪
+│   └── package-macos-app.sh      # Universal 2 打包 + 可选 --no-dmg
+├── assets/                       # 定稿的 AppIcon.icns（不进 SwiftPM 资源包）
+├── dist/                         # 打包产物（脚本会清空重建）
+└── Sources/LoFiMusicBox/
+    ├── LoFiMusicBoxApp.swift     # @main 入口
+    ├── Models/                   # Station / 来源 / 健康状态
+    ├── Persistence/              # StationRepository（多 JSON 合并）
+    ├── Playback/                 # AVStationPlayer / PlaybackCoordinator
+    ├── Services/                 # 健康检测 / 定时检测 / 直播解析 / 专注计时 / 主窗口协调
+    ├── Support/                  # AppConstants / 资源包 / 本地化
+    ├── Resources/                # 内置频道 + 4 种语言 lproj
+    └── UI/                       # SwiftUI 视图与主题
 ```
 
-## 运行
+## 🧭 开发约定
 
-```bash
-cd LoFiMusicBox
-swift run
-```
+- 变量与方法命名要表达业务含义，不用含糊缩写；
+- 业务代码不直写魔法值，新常量统一进 `Support/AppConstants.swift`；
+- 不直观的逻辑一律加中文注释解释"为什么这么写"（例如 `canBecomeKeyWindow` swizzle、`replaceCurrentItem` 复用同一 `AVPlayer` 的音频管线原因、唱针角度背后的视觉考量等）；
+- Markdown 文档中文优先，便于持续记录产品与技术决策；里程碑记录在 [`docs/changelog.md`](docs/changelog.md)；用户可读的版本摘要在根目录 [`CHANGELOG.md`](CHANGELOG.md)。
 
-## 打包
+## 🛣 路线图
 
-```bash
-cd LoFiMusicBox
-./scripts/package-macos-app.sh
-```
+- [ ] Developer ID 签名 + notarization 公证，支持 dmg 公开分发；
+- [ ] 系统级全局 Hotkey：播放 / 暂停 / 切歌无需窗口聚焦；
+- [ ] 更丰富的内置频道池（更多 Lo-Fi / 学习 / 助眠源，更多 BiliBili 直播间预设）；
+- [ ] 探索"本地下载 + remux 再喂给 AVPlayer"的方式重新评估 YouTube 支持——v1.0.0 因 DASH 分片音频与 AVFoundation 兼容性问题移除，见 [`CHANGELOG.md`](CHANGELOG.md)；
+- [ ] 长期：把业务核心抽到 KMP / Rust core，为 iOS / Linux / Windows 端拓展打底。
 
-打包产物（每次打包前会清空 `.build/` 和 `dist/` 后重新生成）：
+## ❤️ 赞赏支持
 
-- 程序：`dist/Lo-Fi Music Box.app`
-- 压缩包：`dist/LoFiMusicBox-macOS.zip`
-- 安装镜像：`dist/LoFiMusicBox-macOS.dmg`
+如果 Lo-Fi Music Box 让你的工作日多了一点氛围感，欢迎请作者喝杯咖啡。任何金额都是给项目继续维护、扩音源池、做公证签名的重要动力。
 
-打包流程：
+<p align="center">
+  <img src="docs/images/donate/alipay.png" alt="支付宝赞赏码" width="220" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/images/donate/wechat.png" alt="微信赞赏码" width="220" />
+</p>
 
-1. 校验 `assets/AppIcon.icns` 已存在且非空；
-2. 清理 `.build/` 和 `dist/`，确保中间产物、缓存和上次包产物不会复用；
-3. `swift build -c release --arch arm64 --arch x86_64` 产出 Universal 2 release 二进制；
-4. 组装 `.app` bundle（含 `Info.plist`、`CFBundleIconFile=AppIcon`），并复制 `assets/AppIcon.icns`；
-5. 通过 `lipo -info` 校验主程序同时包含 `arm64` 与 `x86_64`；
-6. `codesign --force --deep --sign -` 进行 ad-hoc 签名（适合本机分发，正式公开分发时需要换成 Developer ID 签名 + notarization）；
-7. `ditto` 输出 zip、`hdiutil create` 输出 UDZO 压缩 dmg。
+> 二维码文件请以 `alipay.png` / `wechat.png` 命名放入 [`docs/images/donate/`](docs/images/donate/)（该目录已提交占位说明）；也可以把图片换成自己更喜欢的样式。
 
-## 开发约定
+## 📄 开源协议
 
-- 变量与方法命名要表达业务含义，不使用含糊缩写。
-- 业务代码不直写魔法值，新常量统一进 `Support/AppConstants.swift`。
-- 不直观的逻辑加中文注释（例如 Bilibili 用静音替代真正暂停的原因、`canBecomeKeyWindow` swizzle 的必要性、唱针角度选择背后的视觉考量）。
-- Markdown 文档使用中文编写，便于持续记录产品与技术决策。
+Lo-Fi Music Box 使用 **MIT License** 发布，详见 [`LICENSE`](LICENSE)。你可以自由用于个人或商业项目，只需要保留原始版权声明。
 
-## 后续工作（参考）
+如果你 fork / 二次分发时希望使用别的协议，请注意 MIT 允许再授权，但必须保留原 MIT 版权与许可声明。
 
-- Developer ID 签名 + notarization 公证，支持 dmg 公开分发；
-- 增加 macOS 全局快捷键（系统级 Hotkey 触发播放/暂停/切歌）；
-- 把内置频道扩到 BiliBili 直播之外的更多可定制源（用户已经能自行添加，只是默认池可以更丰富）；
-- 长期：考虑共享业务逻辑层到 KMP / Rust core，为后续 iOS / Linux / Windows 拓展打底。
+---
+
+<p align="center">
+  Built with SwiftUI · AppKit · AVFoundation.<br/>
+  If you like it, please ⭐️ the repo — it truly helps.
+</p>

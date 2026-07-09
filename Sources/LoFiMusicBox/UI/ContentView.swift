@@ -783,7 +783,7 @@ struct ContentView: View {
     }
 
     private var displayStatusText: String {
-        if isShowingLoadingTape { return "LOADING TAPE" }
+        if playback.state == .loading || isShowingLoadingTape { return "LOADING TAPE" }
         return playback.isPlaying ? "ON AIR" : "PAUSED"
     }
 

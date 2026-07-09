@@ -56,6 +56,12 @@
 "general.playback_aura.picker" = "播放氛围";
 "general.playback_aura.help" = "控制播放时唱片周围的氛围动效强度。";
 "general.playback_aura.footer" = "只影响播放界面的视觉氛围，不影响音频播放或频道可用性检测。";
+"general.section.dependencies" = "频道支持组件总览";
+"general.dependencies.footer" = "v1.0.0 起，应用只承诺三类系统原生可播的音源，全部无需任何外部依赖或额外安装。";
+"general.dependencies.source.builtin_hls" = "HLS 直播 / 点播（.m3u8）";
+"general.dependencies.source.mp3" = "MP3 / 直连音频流";
+"general.dependencies.source.bilibili" = "哔哩哔哩直播";
+"general.dependencies.requirement.none" = "无需外部依赖，系统原生播放";
 "data.storage_location" = "数据存储位置";
 "data.open_in_finder" = "在 Finder 中打开";
 "data.copy_path" = "复制路径";
@@ -120,10 +126,10 @@
 "station.management.custom_tags" = "自定义标签";
 "station.management.no_custom_tags" = "还没有自定义标签";
 "station.management.tag_placeholder" = "输入标签后回车追加";
-"station.management.url_help" = "URL 支持三类音源（粘贴后会自动识别类型，也可手动指定）：";
-"station.management.url_help.bilibili" = "· 哔哩哔哩直播间：如 https://live.bilibili.com/房间号，会自动解析为 HLS 直播流并原生播放";
-"station.management.url_help.hls" = "· HLS 直播 / 点播：.m3u8 链接";
-"station.management.url_help.direct" = "· 直连音频流：MP3 等";
+"station.management.url_help" = "URL 支持三类音源（粘贴后会自动识别类型，也可手动指定），全部由系统原生播放，无需任何外部依赖：";
+"station.management.url_help.bilibili" = "· 哔哩哔哩直播间（如 https://live.bilibili.com/房间号）";
+"station.management.url_help.hls" = "· HLS 直播 / 点播（.m3u8 链接）";
+"station.management.url_help.direct" = "· 直连音频流（MP3 等）";
 "station.management.custom_tags.footer" = "自定义标签优先于内置的 style/scene 字段显示。回车追加，点击 ✕ 删除。";
 "station.management.validation_error" = "请填写完整的名称和 URL";
 "station.management.details.title" = "频道详情";
@@ -159,6 +165,7 @@
 "station.health.message.bilibili.room_not_live" = "主播当前未开播";
 "station.health.message.bilibili.no_stream" = "未找到可用的 HLS 直播流";
 "station.health.message.bilibili.bad_response" = "B 站接口返回异常";
+"station.health.message.deprecated_youtube" = "YouTube 频道已在 v1.0.0 移除，无法播放。请在【频道管理】中删除该条目，或改成 MP3 / HLS / 哔哩哔哩直播地址。";
 "availability.section.auto" = "自动检测";
 "availability.section.manual" = "手动检测";
 "availability.section.aura" = "播放氛围";

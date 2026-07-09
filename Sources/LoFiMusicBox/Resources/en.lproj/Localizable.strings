@@ -56,6 +56,12 @@
 "general.playback_aura.picker" = "Playback Aura";
 "general.playback_aura.help" = "Controls the intensity of the visual aura around the record while playing.";
 "general.playback_aura.footer" = "Only affects the playback view visuals. It does not change audio playback or station availability checks.";
+"general.section.dependencies" = "Channel Source Dependencies";
+"general.dependencies.footer" = "Since v1.0.0 the app only ships three source types, all natively played by the system with no external dependencies or extra installation.";
+"general.dependencies.source.builtin_hls" = "HLS live / on-demand (.m3u8)";
+"general.dependencies.source.mp3" = "MP3 / direct audio stream";
+"general.dependencies.source.bilibili" = "Bilibili live";
+"general.dependencies.requirement.none" = "No external dependency, played natively by the system";
 "data.storage_location" = "Data Storage Location";
 "data.open_in_finder" = "Open in Finder";
 "data.copy_path" = "Copy Path";
@@ -120,10 +126,10 @@
 "station.management.custom_tags" = "Custom Tags";
 "station.management.no_custom_tags" = "No custom tags yet";
 "station.management.tag_placeholder" = "Enter a tag and press Return";
-"station.management.url_help" = "Supported audio source URLs. The type is detected automatically after pasting, and you can still change it manually:";
-"station.management.url_help.bilibili" = "· Bilibili Live room: for example, https://live.bilibili.com/room-id. It will be resolved to an HLS live stream and played natively.";
-"station.management.url_help.hls" = "· HLS live or on-demand stream: .m3u8 URL";
-"station.management.url_help.direct" = "· Direct audio stream: MP3 and similar formats";
+"station.management.url_help" = "Three kinds of audio source URLs are supported (auto-detected after paste, manual override also works). All are played natively by the system with no external dependencies:";
+"station.management.url_help.bilibili" = "· Bilibili Live room (e.g. https://live.bilibili.com/room-id)";
+"station.management.url_help.hls" = "· HLS live or on-demand (.m3u8 URL)";
+"station.management.url_help.direct" = "· Direct audio stream (MP3 and similar)";
 "station.management.custom_tags.footer" = "Custom tags are shown before built-in style or scene metadata. Press Return to add a tag; click ✕ to remove one.";
 "station.management.validation_error" = "Please enter a name and URL.";
 "station.management.details.title" = "Station Details";
@@ -159,6 +165,7 @@
 "station.health.message.bilibili.room_not_live" = "The host is not live";
 "station.health.message.bilibili.no_stream" = "No playable HLS live stream was found";
 "station.health.message.bilibili.bad_response" = "Bilibili returned an unexpected response";
+"station.health.message.deprecated_youtube" = "YouTube stations were removed in v1.0.0 and can no longer play. Delete this entry in Station Management, or change it to an MP3 / HLS / Bilibili Live URL.";
 "availability.section.auto" = "Automatic Checks";
 "availability.section.manual" = "Manual Check";
 "availability.section.aura" = "Playback Ambience";

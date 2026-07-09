@@ -88,9 +88,53 @@ private struct GeneralSettingsView: View {
             } footer: {
                 Text(LocalizedStrings.text("general.playback_aura.footer"))
             }
+
+            Section {
+                dependencyMatrix
+            } header: {
+                Text(LocalizedStrings.text("general.section.dependencies"))
+            } footer: {
+                Text(LocalizedStrings.text("general.dependencies.footer"))
+            }
         }
         .formStyle(.grouped)
         .padding(.top, 4)
+    }
+
+    /// 频道来源 × 外部依赖对照表：让用户一眼看清"每种源需要什么组件、是必需还是可选"。
+    /// v1.0.0 起 App 只承诺三类系统原生可播的音源，均无需外部依赖。
+    private var dependencyMatrix: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            dependencyRow(
+                sourceKey: "general.dependencies.source.builtin_hls",
+                requirementKey: "general.dependencies.requirement.none"
+            )
+            dependencyRow(
+                sourceKey: "general.dependencies.source.mp3",
+                requirementKey: "general.dependencies.requirement.none"
+            )
+            dependencyRow(
+                sourceKey: "general.dependencies.source.bilibili",
+                requirementKey: "general.dependencies.requirement.none"
+            )
+        }
+    }
+
+    private func dependencyRow(sourceKey: String, requirementKey: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.green)
+                .imageScale(.small)
+                .padding(.top, 2)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LocalizedStrings.text(sourceKey))
+                    .font(.subheadline.weight(.medium))
+                Text(LocalizedStrings.text(requirementKey))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
     }
 }
 

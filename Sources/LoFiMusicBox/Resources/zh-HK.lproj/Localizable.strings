@@ -56,6 +56,12 @@
 "general.playback_aura.picker" = "播放氛圍";
 "general.playback_aura.help" = "控制播放時唱片周圍的氛圍動效強度。";
 "general.playback_aura.footer" = "只影響播放介面的視覺氛圍，不影響音訊播放或頻道可用性檢查。";
+"general.section.dependencies" = "頻道支援組件總覽";
+"general.dependencies.footer" = "由 v1.0.0 起，應用只承諾三類系統原生可播的音源，全部毋需任何外部依賴或額外安裝。";
+"general.dependencies.source.builtin_hls" = "HLS 直播 / 點播（.m3u8）";
+"general.dependencies.source.mp3" = "MP3 / 直連音訊串流";
+"general.dependencies.source.bilibili" = "嗶哩嗶哩直播";
+"general.dependencies.requirement.none" = "毋需外部依賴，系統原生播放";
 "data.storage_location" = "資料儲存位置";
 "data.open_in_finder" = "在 Finder 中開啟";
 "data.copy_path" = "複製路徑";
@@ -120,10 +126,10 @@
 "station.management.custom_tags" = "自訂標籤";
 "station.management.no_custom_tags" = "尚無自訂標籤";
 "station.management.tag_placeholder" = "輸入標籤後按 Return 新增";
-"station.management.url_help" = "URL 支援三類音源（貼上後會自動識別類型，也可手動指定）：";
-"station.management.url_help.bilibili" = "· Bilibili 直播間：例如 https://live.bilibili.com/房間號，會自動解析為 HLS 直播串流並原生播放";
-"station.management.url_help.hls" = "· HLS 直播 / 點播串流：.m3u8 連結";
-"station.management.url_help.direct" = "· 直連音訊串流：MP3 等格式";
+"station.management.url_help" = "URL 支援三類音源（貼上後會自動識別類型，也可手動指定），全部由系統原生播放，毋需任何外部依賴：";
+"station.management.url_help.bilibili" = "· Bilibili 直播間（例如 https://live.bilibili.com/房間號）";
+"station.management.url_help.hls" = "· HLS 直播 / 點播（.m3u8 連結）";
+"station.management.url_help.direct" = "· 直連音訊串流（MP3 等）";
 "station.management.custom_tags.footer" = "自訂標籤會優先於內置 style/scene 欄位顯示。按 Return 新增，點擊 ✕ 刪除。";
 "station.management.validation_error" = "請填寫完整的名稱及 URL";
 "station.management.details.title" = "頻道詳情";
@@ -159,6 +165,7 @@
 "station.health.message.bilibili.room_not_live" = "主播目前未開播";
 "station.health.message.bilibili.no_stream" = "找不到可播放的 HLS 直播串流";
 "station.health.message.bilibili.bad_response" = "Bilibili API 回傳異常";
+"station.health.message.deprecated_youtube" = "YouTube 頻道已在 v1.0.0 移除，無法播放。請在【頻道管理】中刪除該條目，或改成 MP3 / HLS / Bilibili 直播地址。";
 "availability.section.auto" = "自動檢查";
 "availability.section.manual" = "手動檢查";
 "availability.section.aura" = "播放氛圍";

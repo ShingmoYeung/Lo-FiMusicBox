@@ -2,7 +2,46 @@
 set -euo pipefail
 
 # 该脚本把 SwiftPM 的 release 可执行文件组装成标准 macOS .app 程序包。
-# 目前使用 ad-hoc 签名，适合本机运行和开发验证；正式分发时再接入 Developer ID 签名和 notarization。
+# 目前使用 ad-hoc 签名，适合本机运行和开源分发；正式公开分发时可接入 Developer ID 签名 + notarization。
+#
+# 打包产物：
+#   dist/Lo-Fi Music Box.app          可直接双击运行的 .app
+#   dist/LoFiMusicBox-macOS.zip       .app 的 zip 归档
+#   dist/LoFiMusicBox-macOS.dmg       标准"拖入 Applications"式 DMG：
+#                                     双击后 Finder 打开的窗口里同时有 .app 与 /Applications 快捷方式，
+#                                     直接把 App 拖到 Applications 图标上完成安装。
+#
+# 该脚本**不会**改动 /Applications 里已有的 App 版本；安装动作留给用户在 DMG 里手动完成，
+# 符合 macOS 用户对开源应用分发的通用预期，也避免脚本悄悄接管系统目录。
+#
+# 可选参数：
+#   --no-dmg          跳过生成 dmg 镜像（本地快速迭代时使用；仍会生成 .app 和 zip）。
+#   -h, --help        显示帮助后退出。
+
+GENERATE_DMG=1
+for arg in "$@"; do
+    case "${arg}" in
+        --no-dmg)
+            GENERATE_DMG=0
+            ;;
+        -h|--help)
+            awk '
+                NR == 1 { next }
+                started && !/^#/ { exit }
+                /^#/ {
+                    started = 1
+                    sub(/^# ?/, "")
+                    print
+                }
+            ' "${BASH_SOURCE[0]}"
+            exit 0
+            ;;
+        *)
+            echo "未知参数：${arg}" >&2
+            exit 1
+            ;;
+    esac
+done
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DISPLAY_NAME="Lo-Fi Music Box"
@@ -171,15 +210,48 @@ codesign --force --deep --sign - "${APP_BUNDLE_PATH}"
 echo "生成 zip 包..."
 ditto -c -k --keepParent "${APP_BUNDLE_PATH}" "${ZIP_PATH}"
 
-echo "生成 dmg 安装镜像..."
-hdiutil create \
-  -volname "${APP_DISPLAY_NAME}" \
-  -srcfolder "${APP_BUNDLE_PATH}" \
-  -ov \
-  -format UDZO \
-  "${DMG_PATH}" >/dev/null
+if [ "${GENERATE_DMG}" -eq 1 ]; then
+    echo "生成 dmg 安装镜像（拖入 Applications 式布局）..."
+    # 用一个临时 stage 目录组装 DMG 内容：
+    #   Lo-Fi Music Box.app          待安装的 App 本体
+    #   Applications                 指向 /Applications 的软链接（Finder 会把它显示成系统应用目录的快捷方式）
+    # 用户双击 DMG 后，把左边的 App 拖到右边的 Applications 图标上即可完成安装，
+    # 这是 macOS 开源应用的通用分发姿势，比脚本自动 ditto 到 /Applications 更符合用户预期。
+    DMG_STAGE_DIRECTORY="$(mktemp -d)"
+    trap 'rm -rf "${DMG_STAGE_DIRECTORY}"' EXIT
+    ditto "${APP_BUNDLE_PATH}" "${DMG_STAGE_DIRECTORY}/${APP_DISPLAY_NAME}.app"
+    ln -s /Applications "${DMG_STAGE_DIRECTORY}/Applications"
+    # -ov 覆盖旧文件；UDZO 是压缩只读镜像，安装完可直接推出
+    hdiutil create \
+      -volname "${APP_DISPLAY_NAME}" \
+      -srcfolder "${DMG_STAGE_DIRECTORY}" \
+      -ov \
+      -format UDZO \
+      "${DMG_PATH}" >/dev/null
+    rm -rf "${DMG_STAGE_DIRECTORY}"
+    trap - EXIT
+fi
 
+echo ""
 echo "打包完成："
 echo "  程序：${APP_BUNDLE_PATH}"
 echo "  压缩包：${ZIP_PATH}"
-echo "  安装镜像：${DMG_PATH}"
+if [ "${GENERATE_DMG}" -eq 1 ]; then
+    echo "  安装镜像：${DMG_PATH}"
+    echo ""
+    echo "==> 安装方式：双击 ${DMG_PATH##*/}，把「${APP_DISPLAY_NAME}」拖到弹出窗口里的 Applications 图标即可。"
+else
+    echo ""
+    echo "==> 已跳过 dmg 生成（--no-dmg）。如需分发，去掉该参数重跑脚本。"
+fi
+
+INSTALLED_APP_PATH="/Applications/${APP_DISPLAY_NAME}.app"
+if [ -d "${INSTALLED_APP_PATH}" ]; then
+    INSTALLED_MTIME="$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "${INSTALLED_APP_PATH}/Contents/MacOS/${EXECUTABLE_NAME}" 2>/dev/null || echo "未知")"
+    DIST_MTIME="$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "${MACOS_DIRECTORY}/${EXECUTABLE_NAME}" 2>/dev/null || echo "未知")"
+    echo ""
+    echo "==> 提示：检测到 ${INSTALLED_APP_PATH} 已存在（不会被脚本自动覆盖）。"
+    echo "    /Applications 中的版本时间：${INSTALLED_MTIME}"
+    echo "    刚打包的 dist 版本时间    ：${DIST_MTIME}"
+    echo "    若要替换旧版，请用上面提示的 DMG 拖拽方式重装。"
+fi
