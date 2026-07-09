@@ -43,9 +43,8 @@
 "settings.tab.about" = "About";
 "settings.about.description" = "A native Lo-Fi music box widget with custom stations, availability checks, and focus timing.";
 "settings.about.version" = "Version %@";
-"settings.about.update_source_note" = "Update checks use GitHub Releases. If GitHub is hard to reach on your network, retry later or use a network that can access GitHub.";
 "update.section.title" = "Software Updates";
-"update.section.footer" = "These options only control when the app checks and notifies. They do not download or install updates automatically. You still install by downloading from GitHub Releases. While audio is playing, update alerts are deferred so listening is not interrupted.";
+"update.section.footer" = "Update checks use GitHub Releases. These options only control when the app checks and notifies—they do not download or install updates. Install by downloading from Releases. If GitHub is hard to reach, retry later or use a network that can access GitHub. While audio is playing, update alerts are deferred so listening is not interrupted.";
 "update.policy.picker" = "Automatic Check";
 "update.policy.off" = "Off (Manual Only)";
 "update.policy.on_launch" = "Check After Launch";

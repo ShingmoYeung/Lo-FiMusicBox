@@ -43,9 +43,8 @@
 "settings.tab.about" = "关于";
 "settings.about.description" = "一个轻量原生的 Lo-Fi 音乐盒桌面小组件，支持自定义频道、可用性检测与专注计时。";
 "settings.about.version" = "版本 %@";
-"settings.about.update_source_note" = "检查更新通过 GitHub Releases 获取信息。若你所在网络访问 GitHub 不稳定，可稍后重试，或自行配置可访问 GitHub 的网络后再试。";
 "update.section.title" = "软件更新";
-"update.section.footer" = "这里只控制何时检查与何时通知，不会自动下载或安装。安装仍需你从 GitHub Releases 下载后手动替换应用。播放中发现新版本时不会弹窗打断收听。";
+"update.section.footer" = "检查更新通过 GitHub Releases 获取信息。这里只控制何时检查与何时通知，不会自动下载或安装；安装仍需你从 Releases 下载后手动替换应用。若网络访问 GitHub 不稳定，可稍后重试或自行配置可访问 GitHub 的网络。播放中发现新版本时不会弹窗打断收听。";
 "update.policy.picker" = "自动检查";
 "update.policy.off" = "关闭（仅手动）";
 "update.policy.on_launch" = "启动后检查";

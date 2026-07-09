@@ -43,9 +43,8 @@
 "settings.tab.about" = "關於";
 "settings.about.description" = "輕量原生的 Lo-Fi 音樂盒桌面小工具，支援自訂頻道、可用性檢查與專注計時。";
 "settings.about.version" = "版本 %@";
-"settings.about.update_source_note" = "檢查更新透過 GitHub Releases 取得資訊。若你所在網路存取 GitHub 不穩定，可稍後重試，或自行設定可存取 GitHub 的網路後再試。";
 "update.section.title" = "軟體更新";
-"update.section.footer" = "這裡只控制何時檢查與何時通知，不會自動下載或安裝。安裝仍需你從 GitHub Releases 下載後手動取代應用程式。播放中發現新版本時不會彈窗打斷收聽。";
+"update.section.footer" = "檢查更新透過 GitHub Releases 取得資訊。這裡只控制何時檢查與何時通知，不會自動下載或安裝；安裝仍需你從 Releases 下載後手動取代應用程式。若網路存取 GitHub 不穩定，可稍後重試或自行設定可存取 GitHub 的網路。播放中發現新版本時不會彈窗打斷收聽。";
 "update.policy.picker" = "自動檢查";
 "update.policy.off" = "關閉（僅手動）";
 "update.policy.on_launch" = "啟動後檢查";

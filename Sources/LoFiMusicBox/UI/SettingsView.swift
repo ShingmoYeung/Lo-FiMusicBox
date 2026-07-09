@@ -3,11 +3,11 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// macOS 偏好设置窗口（Cmd+, 触发）。当前包含五个分页：
-/// - 通用：应用语言、播放体验；
+/// - 通用：应用语言、播放体验、频道来源依赖说明；
 /// - 频道管理：增删改自定义频道、编辑或隐藏内置频道；
 /// - 数据管理：查看并打开用户数据目录；
 /// - 可用性检测：自动检测、手动检测、结果分布；
-/// - 关于：版本与说明信息。
+/// - 关于：应用身份与全部软件更新能力（检查策略、手动检查、状态）。
 struct SettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
 
@@ -48,7 +48,6 @@ struct SettingsView: View {
 
 private struct GeneralSettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
-    @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
 
     var body: some View {
         Form {
@@ -97,54 +96,9 @@ private struct GeneralSettingsView: View {
             } footer: {
                 Text(LocalizedStrings.text("general.dependencies.footer"))
             }
-
-            Section {
-                Picker(
-                    LocalizedStrings.text("update.policy.picker"),
-                    selection: Binding(
-                        get: { appSettings.updateCheckPolicy },
-                        set: { newPolicy in
-                            appSettings.updateUpdateCheckPolicy(newPolicy)
-                            updateCheckCoordinator.reschedule()
-                        }
-                    )
-                ) {
-                    ForEach(UpdateCheckPolicy.allCases) { policy in
-                        Text(policy.displayName).tag(policy)
-                    }
-                }
-
-                if appSettings.updateCheckPolicy == .periodic {
-                    Picker(
-                        LocalizedStrings.text("update.interval.picker"),
-                        selection: Binding(
-                            get: { appSettings.updatePeriodicIntervalHours },
-                            set: { hours in
-                                appSettings.updateUpdatePeriodicIntervalHours(hours)
-                                updateCheckCoordinator.reschedule()
-                            }
-                        )
-                    ) {
-                        ForEach(AppConstants.Settings.updatePeriodicIntervalHourChoices, id: \.self) { hours in
-                            Text(updateIntervalLabel(hours)).tag(hours)
-                        }
-                    }
-                }
-            } header: {
-                Text(LocalizedStrings.text("update.section.title"))
-            } footer: {
-                Text(LocalizedStrings.text("update.section.footer"))
-            }
         }
         .formStyle(.grouped)
         .padding(.top, 4)
-    }
-
-    private func updateIntervalLabel(_ hours: Int) -> String {
-        if hours >= 168 {
-            return LocalizedStrings.text("update.interval.weekly")
-        }
-        return LocalizedStrings.text("update.interval.hours", hours)
     }
 
     /// 频道来源 × 外部依赖对照表：让用户一眼看清"每种源需要什么组件、是必需还是可选"。
@@ -184,49 +138,82 @@ private struct GeneralSettingsView: View {
     }
 }
 
+/// 关于页同时承载应用身份与全部软件更新能力（策略、手动检查、状态），
+/// 避免「通用改策略 / 关于点检查」拆成两处。
 private struct AboutSettingsView: View {
     @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
     @EnvironmentObject private var appSettings: AppSettingsStore
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(AppConstants.Identity.displayName)
-                .font(.title2.bold())
-
-            Text(LocalizedStrings.text("settings.about.version", AppVersion.displayString))
-                .foregroundStyle(.secondary)
-
-            Text(LocalizedStrings.text("settings.about.description"))
-                .foregroundStyle(.secondary)
-
-            Text(LocalizedStrings.text("settings.about.update_source_note"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Divider()
-
-            if updateCheckCoordinator.hasDeferredUpdatePrompt {
-                Text(LocalizedStrings.text("update.status.deferred_while_playing"))
-                    .font(.callout)
-                    .foregroundStyle(.orange)
+        Form {
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(AppConstants.Identity.displayName)
+                        .font(.title2.bold())
+                    Text(LocalizedStrings.text("settings.about.version", AppVersion.displayString))
+                        .foregroundStyle(.secondary)
+                    Text(LocalizedStrings.text("settings.about.description"))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
             }
 
-            if let statusText = statusSummaryText {
-                Text(statusText)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
+            Section {
+                Picker(
+                    LocalizedStrings.text("update.policy.picker"),
+                    selection: Binding(
+                        get: { appSettings.updateCheckPolicy },
+                        set: { newPolicy in
+                            appSettings.updateUpdateCheckPolicy(newPolicy)
+                            updateCheckCoordinator.reschedule()
+                        }
+                    )
+                ) {
+                    ForEach(UpdateCheckPolicy.allCases) { policy in
+                        Text(policy.displayName).tag(policy)
+                    }
+                }
 
-            HStack(spacing: 12) {
+                if appSettings.updateCheckPolicy == .periodic {
+                    Picker(
+                        LocalizedStrings.text("update.interval.picker"),
+                        selection: Binding(
+                            get: { appSettings.updatePeriodicIntervalHours },
+                            set: { hours in
+                                appSettings.updateUpdatePeriodicIntervalHours(hours)
+                                updateCheckCoordinator.reschedule()
+                            }
+                        )
+                    ) {
+                        ForEach(AppConstants.Settings.updatePeriodicIntervalHourChoices, id: \.self) { hours in
+                            Text(updateIntervalLabel(hours)).tag(hours)
+                        }
+                    }
+                }
+
+                if updateCheckCoordinator.hasDeferredUpdatePrompt {
+                    Text(LocalizedStrings.text("update.status.deferred_while_playing"))
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                }
+
+                if let statusText = statusSummaryText {
+                    Text(statusText)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
                 Button {
                     Task {
                         await updateCheckCoordinator.checkNowFromUser()
                     }
                 } label: {
                     if updateCheckCoordinator.isChecking {
-                        ProgressView()
-                            .controlSize(.small)
-                        Text(LocalizedStrings.text("update.action.checking"))
+                        HStack {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text(LocalizedStrings.text("update.action.checking"))
+                        }
                     } else {
                         Label(
                             LocalizedStrings.text("app.menu.check_updates"),
@@ -244,23 +231,34 @@ private struct AboutSettingsView: View {
                         systemImage: "safari"
                     )
                 }
-            }
 
-            if let ignored = appSettings.updateIgnoredVersion {
-                HStack {
-                    Text(LocalizedStrings.text("update.status.ignored", ignored))
+                if let ignored = appSettings.updateIgnoredVersion {
+                    HStack {
+                        Text(LocalizedStrings.text("update.status.ignored", ignored))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button(LocalizedStrings.text("update.action.clear_ignore")) {
+                            appSettings.clearIgnoredUpdateVersion()
+                        }
                         .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button(LocalizedStrings.text("update.action.clear_ignore")) {
-                        appSettings.clearIgnoredUpdateVersion()
                     }
-                    .font(.caption)
                 }
+            } header: {
+                Text(LocalizedStrings.text("update.section.title"))
+            } footer: {
+                Text(LocalizedStrings.text("update.section.footer"))
             }
-
-            Spacer()
         }
-        .padding(20)
+        .formStyle(.grouped)
+        .padding(.top, 4)
+    }
+
+    private func updateIntervalLabel(_ hours: Int) -> String {
+        if hours >= 168 {
+            return LocalizedStrings.text("update.interval.weekly")
+        }
+        return LocalizedStrings.text("update.interval.hours", hours)
     }
 
     private var statusSummaryText: String? {
