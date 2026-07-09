@@ -130,7 +130,7 @@ struct StationHealthService {
         request.httpMethod = method
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         request.setValue(
-            AppConstants.Identity.userAgent,
+            AppConstants.Identity.runtimeUserAgent,
             forHTTPHeaderField: AppConstants.StationHealthCheck.userAgentHeaderName
         )
         for (key, value) in headers {

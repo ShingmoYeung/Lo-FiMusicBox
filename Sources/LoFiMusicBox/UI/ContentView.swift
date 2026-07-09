@@ -333,7 +333,8 @@ struct ContentView: View {
             TrafficLightControls(
                 closeAccessibilityLabel: closeButtonAccessibilityLabel,
                 onClose: {
-                    mainWindowCoordinator.hideMainWindow()
+                    // 必须藏本窗：多开时协调器可能只跟踪后开的那扇，只调无参 hide 会关错窗。
+                    mainWindowCoordinator.hideMainWindow(hostWindow)
                 },
                 onMinimize: { hostWindow?.miniaturize(nil) }
             )

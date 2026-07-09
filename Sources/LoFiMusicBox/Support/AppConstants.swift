@@ -5,7 +5,35 @@ enum AppConstants {
     enum Identity {
         static let displayName = "Lo-Fi Music Box"
         static let applicationSupportDirectoryName = "Lo-Fi Music Box"
-        static let userAgent = "LoFiMusicBox/1.0"
+
+        static var runtimeUserAgent: String {
+            "LoFiMusicBox/\(AppVersion.marketingVersion)"
+        }
+    }
+
+    /// 检查更新：仅通过 GitHub Releases API，不维护国内镜像主备通道。
+    enum UpdateCheck {
+        static let githubOwner = "ShingmoYeung"
+        static let githubRepository = "Lo-FiMusicBox"
+        static let latestReleaseAPIURL =
+            "https://api.github.com/repos/\(githubOwner)/\(githubRepository)/releases/latest"
+        static let latestReleasePageURL =
+            "https://github.com/\(githubOwner)/\(githubRepository)/releases/latest"
+        static let requestTimeoutSeconds: TimeInterval = 10
+        /// 启动后延迟再静默检查，避免和起播、健康检测抢首屏网络。
+        static let startupDelaySeconds: TimeInterval = 8
+        /// 「稍后提醒」的默认间隔。
+        static let snoozeIntervalSeconds: TimeInterval = 24 * 60 * 60
+        /// `swift run` 无 Info.plist 版本字段时的回退值（与打包脚本 APP_VERSION 对齐）。
+        static let developmentFallbackMarketingVersion = "1.0.0"
+        static let acceptHeaderName = "Accept"
+        static let acceptHeaderValue = "application/vnd.github+json"
+        static let userAgentHeaderName = "User-Agent"
+        /// 系统通知：仅后台发现新版本时使用。
+        static let notificationCategoryIdentifier = "lofi-music-box-update-available"
+        static let notificationRequestIdentifierPrefix = "lofi-music-box-update-"
+        static let notificationUserInfoReleaseURLKey = "releaseHTMLURL"
+        static let notificationUserInfoVersionKey = "releaseVersion"
     }
 
     enum Resource {
@@ -57,12 +85,25 @@ enum AppConstants {
         /// 上次可用性检测的完成时间。
         static let healthLastCheckedAtStorageKey = "lofi-music-box-health-last-checked-at"
 
-        /// 检测频率档位（分钟）。`0` 代表“仅手动”。
+        /// 更新检查策略：`off` / `onLaunch` / `periodic`。
+        static let updateCheckPolicyStorageKey = "lofi-music-box-update-check-policy"
+        static let updateLastCheckedAtStorageKey = "lofi-music-box-update-last-checked-at"
+        static let updateSnoozeUntilStorageKey = "lofi-music-box-update-snooze-until"
+        static let updateIgnoredVersionStorageKey = "lofi-music-box-update-ignored-version"
+        /// 定期检查间隔（小时）。
+        static let updatePeriodicIntervalHoursStorageKey = "lofi-music-box-update-periodic-interval-hours"
+
+        /// 自动检测开启时的频率档位（分钟）。仅手动检测由「启用自动可用性检测」开关控制，与间隔无关。
         static let healthCheckIntervalChoices: [Int] = [5, 10, 30, 60]
         static let defaultHealthCheckIntervalMinutes: Int = 30
         static let defaultHealthAutoCheckEnabled: Bool = true
         static let defaultHealthCheckOnlyWhenIdle: Bool = true
         static let defaultPlaybackAuraIntensity: PlaybackAuraIntensity = .balanced
+        static let defaultUpdateCheckPolicy: UpdateCheckPolicy = .onLaunch
+        /// 定期检查最短间隔（小时）：每天 / 每周 / 每月（30 天近似）。
+        /// UI 展示为频率文案，不向用户暴露小时数。
+        static let updatePeriodicIntervalHourChoices: [Int] = [24, 168, 720]
+        static let defaultUpdatePeriodicIntervalHours: Int = 168
     }
 
     enum StationTypeInference {
@@ -123,8 +164,8 @@ enum AppConstants {
     }
 
     enum UserInterface {
-        // 主悬浮小组件窗口尺寸：保持紧凑，同时容纳音量控制和频道标签。
-        // 高度从 220 提升到 248：给右侧"频道名两行 + 换行标签"和底部"复古控制台"留出呼吸空间。
+        // 主悬浮小组件窗口尺寸：保持紧凑，同时容纳音量控制和频道信息。
+        // 高度从 220 提升到 248：给琥珀数显与底部复古控制台留出呼吸空间。
         static let widgetWindowWidth: CGFloat = 360
         static let widgetWindowHeight: CGFloat = 248
         /// 圆角半径选 16：足够显示软圆角，又能保证 14pt padding 的顶部按钮完全落在
@@ -132,10 +173,6 @@ enum AppConstants {
         static let widgetCornerRadius: CGFloat = 16
         /// 顶部按钮离窗口边缘的距离，必须 >= widgetCornerRadius 才能不被圆角剪。
         static let widgetEdgeInset: CGFloat = 14
-        /// 唱机与右侧信息区的水平间距，比通用 mediumSpacing 更宽，避免信息贴着唱机。
-        static let vinylInfoSpacing: CGFloat = 18
-        /// 主界面信息区行内标签最多直接展示的数量，超出部分用 "+N" 汇总。
-        static let maxInlineTags = 5
         static let stationManagerMinimumWidth: CGFloat = 520
         static let stationManagerMinimumHeight: CGFloat = 620
         static let mediumSpacing: CGFloat = 12

@@ -1,83 +1,88 @@
 # Lo-Fi Music Box
 
+> English · [中文](README.zh-CN.md)
+
 <p align="center">
   <img src="docs/images/lo-fi-music-box-icon.png" alt="Lo-Fi Music Box" width="180" />
 </p>
 
 <p align="center">
-  一台会转的复古 macOS 桌面音乐盒。<br/>
   A tiny retro-turntable music box that lives on your macOS desktop.
 </p>
 
 <p align="center">
-  <a href="#-下载与安装"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-c48a5b?style=flat-square"></a>
-  <a href="#-开源协议"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
+  <a href="#-download--install"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-c48a5b?style=flat-square"></a>
+  <a href="#-license"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
   <a href="#"><img alt="macOS" src="https://img.shields.io/badge/macOS-14%2B-lightgrey.svg?style=flat-square"></a>
   <a href="#"><img alt="Swift" src="https://img.shields.io/badge/Swift-6-orange.svg?style=flat-square"></a>
   <a href="#"><img alt="Universal 2" src="https://img.shields.io/badge/Universal%202-arm64%20%2B%20x86__64-brightgreen.svg?style=flat-square"></a>
 </p>
 
-Lo-Fi Music Box 是一个 SwiftUI + AppKit 编写的 macOS 小组件，围绕"专注氛围电台"打造：内置 Lo-Fi / Chill 电台、支持你自己添加 MP3 直连流 / HLS 直播 / 哔哩哔哩直播间，配一台 3D 拟物唱机、菜单栏常驻入口、频道可用性检测和番茄式专注计时。
+Lo-Fi Music Box is a macOS widget built with SwiftUI + AppKit for focus-friendly ambient radio: bundled Lo-Fi / Chill stations, custom MP3 streams / HLS / Bilibili live rooms, a 3D turntable, a menu bar entry, station health checks, and a pomodoro-style focus timer.
 
-零第三方依赖，全部走系统 AVFoundation + SwiftUI + AppKit，打包出来就是一份能双击运行的 `.app`。
-
----
-
-## 目录
-
-- [功能亮点](#-功能亮点)
-- [截图](#-截图)
-- [下载与安装](#-下载与安装)
-- [从源码构建](#-从源码构建)
-- [数据与偏好](#-数据与偏好)
-- [键盘快捷键](#-键盘快捷键)
-- [项目结构](#-项目结构)
-- [开发约定](#-开发约定)
-- [路线图](#-路线图)
-- [赞赏支持](#-赞赏支持)
-- [开源协议](#-开源协议)
+Zero third-party dependencies — AVFoundation + SwiftUI + AppKit only. The packaged result is a double-clickable `.app`.
 
 ---
 
-## ✨ 功能亮点
+## Contents
 
-- **一体化复古唱机**：整窗就是一台连续木质机身，唱盘嵌在顶面、深色琥珀数显屏显示频道信息、黄铜控制台做在前面板上。
-- **3D 拟物换片动画**：黑胶旋转 + 唱针带 3D 透视的"抬-落"动画，切歌时先抬针到中位、停顿、再落回——模拟实体唱机换片。
-- **菜单栏常驻**：`MenuBarExtra` 固定一枚复古收音机图标，下拉菜单可一键切到任意频道，主窗口保持无 titlebar 的悬浮体验。
-- **频道管理面板**：`Cmd+,` 打开设置面板，支持增删自定义频道、编辑或隐藏内置频道；内置频道修改仅保存差异字段，App 升级不覆盖你的改动。
-- **可用性检测**：单频道按需检测 + 全量批量检测 + 后台周期性自动检测（`5 / 10 / 30 / 60` 分钟可选，支持"仅播放空闲时"），结果反映在频道排序上。
-- **哔哩哔哩直播原生播放**：把直播间地址直接当频道，App 解析成 HLS 直链交给 AVPlayer 播；主播未开播时会明确标不可用，不会假装能播。
-- **专注时长统计**：每分钟 tick 累计今日/历史专注分钟数，菜单栏直接显示当日时长，保留近 90 天历史；胶囊可点击重置，做番茄式计时。
-- **换盘面主题**：内置 6 款黑胶盘面 + 印字（`MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD`），复用"抬针—换片—落针"动画切换。
-- **多语言**：内置简体中文 / 繁体中文（台湾） / 繁体中文（香港） / English 四种界面语言，实时切换。
+- [Features](#-features)
+- [Screenshots](#-screenshots)
+- [Download & install](#-download--install)
+- [Build from source](#-build-from-source)
+- [Data & preferences](#-data--preferences)
+- [Keyboard shortcuts](#-keyboard-shortcuts)
+- [Project layout](#-project-layout)
+- [Development notes](#-development-notes)
+- [Roadmap](#-roadmap)
+- [Support the project](#-support-the-project)
+- [Acknowledgments](#-acknowledgments)
+- [License](#-license)
 
-## 📸 截图
+---
+
+## ✨ Features
+
+- **One-piece retro turntable**: the whole window is a continuous wood chassis — platter on top, amber display for station info, brass console on the front panel.
+- **3D cue / change animation**: vinyl spin plus a lift–pause–drop tonearm when switching stations.
+- **Menu bar presence**: a `MenuBarExtra` turntable icon with quick station switching; the frameless main window’s red traffic light hides to the menu bar (does not quit) so you can reopen anytime.
+- **Station manager**: `Cmd+,` opens Settings — add/edit custom stations, edit or hide bundled ones. Bundled edits store diffs only so upgrades keep your changes.
+- **Health checks**: per-station, batch, and scheduled background checks (`5 / 10 / 30 / 60` minutes; optional “only when idle”). Results drive station sorting.
+- **Native Bilibili live playback**: paste a live room URL; the app resolves an HLS URL for AVPlayer. Offline rooms are marked unavailable honestly.
+- **Focus minutes**: per-minute ticks for today / history; today’s total appears in the main widget focus capsule; ~90 days retained; the capsule resets like a pomodoro timer.
+- **Vinyl face themes**: six platter looks (`MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD`) with the same lift–change–drop animation.
+- **Localization**: Simplified Chinese, Traditional Chinese (Taiwan / Hong Kong), and English — switch live.
+- **Check for updates**: queries GitHub Releases for the latest tag. Configure off / on launch / periodic (daily / weekly / monthly) under **Settings → About**, or use the menu bar item. Newer versions notify or alert and open Releases — no in-app auto-install. Network failures get honest self-help copy.
+
+## 📸 Screenshots
 
 <p align="center">
   <img src="docs/images/menubar-turntable-preview.png" alt="Menu bar turntable preview" width="720" />
 </p>
 
-（更多主界面 / 频道管理 / 设置面板截图欢迎社区补充；提 PR 时可以把截图放到 `docs/images/preview/`。）
+(More main UI / station manager / Settings shots welcome — put them under `docs/images/preview/` in a PR.)
 
-## 📦 下载与安装
+## 📦 Download & install
 
-Lo-Fi Music Box 目前采用 **ad-hoc 签名**（`codesign -`），未经 Apple 公证——你在打开时可能需要在系统「设置 → 隐私与安全性」里点击"仍要打开"授权一次。这个限制对开源分发是正常的；正式做 App Store 或 Developer ID 分发前不会强制去做公证。
+Builds use **ad-hoc signing** (`codesign -`) and are not notarized. On first open you may need **System Settings → Privacy & Security → Open Anyway**. That is normal for open-source macOS apps until Developer ID + notarization lands.
 
-- 从 GitHub Releases 下载 `LoFiMusicBox-macOS.zip` 或 `.dmg`，把 `Lo-Fi Music Box.app` 拖进 `/Applications` 即可；
-- 或者按下面的[从源码构建](#-从源码构建)自行打包，产物同样在 `dist/` 下。
+- Download `LoFiMusicBox-macOS.zip` or the `.dmg` from [GitHub Releases](https://github.com/ShingmoYeung/Lo-FiMusicBox/releases), then drag `Lo-Fi Music Box.app` into `/Applications`.
+- Or [build from source](#-build-from-source); artifacts land in `dist/`.
 
-系统要求：**macOS 14 或更新**（Universal 2，同时支持 Apple Silicon 与 Intel）。
+**Requirements:** macOS 14+ (Universal 2 — Apple Silicon and Intel).
 
-## 🛠 从源码构建
+## 🛠 Build from source
 
-依赖：
+Requirements:
 
 - macOS 14+
-- Xcode 26.x（提供 Swift 6 toolchain）；命令行 `swift build` 一样可以完整构建，不需要打开 Xcode。
+- Xcode 26.x (Swift 6 toolchain); `swift build` works from the CLI without opening Xcode.
 
 ```bash
 git clone https://github.com/ShingmoYeung/Lo-FiMusicBox.git
-cd Lo-FiMusicBox
+cd LoFiMusicBox
+
+./scripts/clean-build-artifacts.sh
 
 swift run
 
@@ -85,110 +90,119 @@ swift run
 ./scripts/package-macos-app.sh --no-dmg
 ```
 
-打包脚本会：
+The package script:
 
-1. 校验 `assets/AppIcon.icns` 存在且非空（应用图标已预置，不再由脚本生成）；
-2. 清理 `.build/` 与 `dist/`，避免上次的中间产物被复用；
-3. `swift build -c release --arch arm64 --arch x86_64` 产出 Universal 2 release 二进制；
-4. 组装 `.app` bundle（含 `Info.plist` 与 `CFBundleIconFile=AppIcon`），拷贝 `assets/AppIcon.icns`；
-5. `codesign --force --deep --sign -` 做 ad-hoc 签名，方便本机分发；
-6. `ditto` 生成 zip；
-7. `hdiutil create` 生成"拖入 Applications"式 UDZO 压缩 dmg：DMG 内同时包含 `.app` 和一个指向系统 `/Applications` 的软链接，双击 dmg 后把 App 拖到 Applications 图标上即可完成安装。
+1. Checks that `assets/AppIcon.icns` exists and is non-empty.
+2. Runs `./scripts/clean-build-artifacts.sh` to clear `.build/` and `dist/`.
+3. Builds Universal 2 release: `swift build -c release --arch arm64 --arch x86_64`.
+4. Assembles the `.app` (Info.plist + `CFBundleIconFile=AppIcon`) and copies the icon.
+5. Ad-hoc signs with `codesign --force --deep --sign -`.
+6. Zips with `ditto`.
+7. Creates a drag-to-Applications UDZO DMG (`.app` + symlink to `/Applications`).
 
-打包脚本**不会**替你去改 `/Applications` 里已有的 App，安装步骤留给你在 DMG 里手动完成，符合 macOS 用户对开源应用分发的通用预期。
+Clean artifacts alone:
 
-## 💾 数据与偏好
+```bash
+./scripts/clean-build-artifacts.sh
+./scripts/clean-build-artifacts.sh --build-only
+./scripts/clean-build-artifacts.sh --dist-only
+```
 
-频道数据用几份纯 JSON 保存，方便你直接备份和 diff（不引入 SQLite）：
+The package script does **not** overwrite an existing app in `/Applications` — install by dragging from the DMG.
 
-| 文件 | 位置 | 内容 |
+## 💾 Data & preferences
+
+Stations are plain JSON (easy to back up and diff; no SQLite):
+
+| File | Location | Contents |
 | --- | --- | --- |
-| `BundledStations.json` | App 资源（只读） | 随 App 分发的内置频道 |
-| `custom-stations.json` | `~/Library/Application Support/Lo-Fi Music Box/` | 你自己添加的自定义频道 |
-| `bundled-overrides.json` | 同上 | 对内置频道的字段级修改，仅存差异 |
-| `hidden-bundled-ids.json` | 同上 | 被你隐藏的内置频道 ID |
-| `favorite-station-ids.json` | 同上 | 收藏的频道 ID |
-| `station-health.json` | 同上 | 每个频道最近一次可用性检测结果 |
+| `BundledStations.json` | App resources (read-only) | Bundled stations |
+| `custom-stations.json` | `~/Library/Application Support/Lo-Fi Music Box/` | Your custom stations |
+| `bundled-overrides.json` | same | Field-level diffs for bundled stations |
+| `hidden-bundled-ids.json` | same | Hidden bundled station IDs |
+| `favorite-station-ids.json` | same | Favorites |
+| `station-health.json` | same | Last health-check result per station |
 
-轻量偏好走 `UserDefaults`：上次频道 ID、音量、可用性检测开关/频率/空闲条件、近 90 天专注历史。
+Lightweight prefs use `UserDefaults`: last station, volume, health-check settings, ~90 days of focus history.
 
-设置面板里的【数据管理】可以：一键在 Finder 里打开数据目录、复制路径、导出/导入自定义频道 JSON。
+**Settings → Data** can open the folder in Finder, copy the path, and export/import custom station JSON.
 
-## ⌨️ 键盘快捷键
+## ⌨️ Keyboard shortcuts
 
-主小组件聚焦时（`MenuBarExtra` 不抢焦点，主窗口通过 `WindowConfigurator` 里的 `canBecomeKeyWindow` swizzle 接收键盘事件）：
+When the main widget is key (the menu bar extra does not steal focus; `canBecomeKeyWindow` is swizzled for the frameless window):
 
-| 按键 | 行为 |
+| Key | Action |
 | --- | --- |
-| `Space` | 播放 / 暂停 |
-| `←` | 上一首 |
-| `→` | 下一首 |
-| `⌘ M` | 静音 / 取消静音 |
-| `⌘ R` | 在可用频道里随机选一台 |
-| `⌘ ,` | 打开偏好设置 |
-| `⌘ N` | 频道管理面板内新建自定义频道 |
-| `⌘ W` | 关闭弹出对话框 |
+| `Space` | Play / pause |
+| `←` | Previous |
+| `→` | Next |
+| `⌘ M` | Mute / unmute |
+| `⌘ R` | Random available station |
+| `⌘ ,` | Preferences |
 
-## 🗂 项目结构
+## 🗂 Project layout
 
 ```
 LoFiMusicBox/
 ├── Package.swift
-├── README.md
+├── README.md                     # English (default)
+├── README.zh-CN.md               # Chinese
 ├── CHANGELOG.md
 ├── LICENSE
 ├── docs/
-│   ├── changelog.md              # 详细产品/技术里程碑
-│   ├── icon-pipeline.md          # 应用图标资源约定
-│   └── images/                   # 图标 / 截图 / 打赏二维码
+│   ├── changelog.md              # Detailed product / tech milestones
+│   ├── icon-pipeline.md
+│   └── images/
 ├── scripts/
-│   ├── build-app-icon.sh         # 校验 assets/AppIcon.icns 是否就绪
-│   └── package-macos-app.sh      # Universal 2 打包 + 可选 --no-dmg
-├── assets/                       # 定稿的 AppIcon.icns（不进 SwiftPM 资源包）
-├── dist/                         # 打包产物（脚本会清空重建）
+│   ├── build-app-icon.sh
+│   ├── clean-build-artifacts.sh
+│   └── package-macos-app.sh
+├── assets/                       # Final AppIcon.icns
+├── dist/                         # Package output
 └── Sources/LoFiMusicBox/
-    ├── LoFiMusicBoxApp.swift     # @main 入口
-    ├── Models/                   # Station / 来源 / 健康状态
-    ├── Persistence/              # StationRepository（多 JSON 合并）
-    ├── Playback/                 # AVStationPlayer / PlaybackCoordinator
-    ├── Services/                 # 健康检测 / 定时检测 / 直播解析 / 专注计时 / 主窗口协调
-    ├── Support/                  # AppConstants / 资源包 / 本地化
-    ├── Resources/                # 内置频道 + 4 种语言 lproj
-    └── UI/                       # SwiftUI 视图与主题
+    ├── LoFiMusicBoxApp.swift
+    ├── Models/
+    ├── Persistence/
+    ├── Playback/                 # StationPlayer protocol + AVStationPlayer / PlaybackCoordinator
+    ├── Services/                 # Health, Bilibili resolve, focus, updates, …
+    ├── Support/
+    ├── Resources/
+    └── UI/
 ```
 
-## 🧭 开发约定
+## 🧭 Development notes
 
-- 变量与方法命名要表达业务含义，不用含糊缩写；
-- 业务代码不直写魔法值，新常量统一进 `Support/AppConstants.swift`；
-- 不直观的逻辑一律加中文注释解释"为什么这么写"（例如 `canBecomeKeyWindow` swizzle、`replaceCurrentItem` 复用同一 `AVPlayer` 的音频管线原因、唱针角度背后的视觉考量等）；
-- Markdown 文档中文优先，便于持续记录产品与技术决策；里程碑记录在 [`docs/changelog.md`](docs/changelog.md)；用户可读的版本摘要在根目录 [`CHANGELOG.md`](CHANGELOG.md)。
+- Prefer meaningful names over opaque abbreviations.
+- Keep magic values out of business code — add constants in `Support/AppConstants.swift`.
+- Non-obvious logic gets comments explaining *why* (e.g. `canBecomeKeyWindow` swizzle, reusing one `AVPlayer` via `replaceCurrentItem`). Code comments are Chinese-first; user docs default to English (this file), with Chinese in [`README.zh-CN.md`](README.zh-CN.md).
+- Milestone archive: [`docs/changelog.md`](docs/changelog.md). User-facing notes: [`CHANGELOG.md`](CHANGELOG.md). Release tag: `v1.0.0`.
+- This project was built with assistance from [Cursor](https://cursor.com/).
 
-## 🛣 路线图
+## 🛣 Roadmap
 
-- [ ] Developer ID 签名 + notarization 公证，支持 dmg 公开分发；
-- [ ] 系统级全局 Hotkey：播放 / 暂停 / 切歌无需窗口聚焦；
-- [ ] 更丰富的内置频道池（更多 Lo-Fi / 学习 / 助眠源，更多 BiliBili 直播间预设）；
-- [ ] 探索"本地下载 + remux 再喂给 AVPlayer"的方式重新评估 YouTube 支持——v1.0.0 因 DASH 分片音频与 AVFoundation 兼容性问题移除，见 [`CHANGELOG.md`](CHANGELOG.md)；
-- [ ] 长期：把业务核心抽到 KMP / Rust core，为 iOS / Linux / Windows 端拓展打底。
+- [ ] Developer ID signing + notarization for public DMG distribution
+- [ ] System-wide hotkeys for play / pause / skip without focusing the window
+- [ ] Richer bundled station pool (more Lo-Fi / study / sleep / Bilibili presets)
+- [ ] Longer term: extract a KMP / Rust core for iOS / Linux / Windows
 
-## ❤️ 赞赏支持
+## ❤️ Support the project
 
-如果 Lo-Fi Music Box 让你的工作日多了一点氛围感，欢迎请作者喝杯咖啡。任何金额都是给项目继续维护、扩音源池、做公证签名的重要动力。
+If the music box brightens your workday, a coffee helps keep maintenance, station pools, and notarization moving.
 
 <p align="center">
-  <img src="docs/images/donate/alipay.png" alt="支付宝赞赏码" width="220" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/images/donate/wechat.png" alt="微信赞赏码" width="220" />
+  <img src="docs/images/donate/wechat.png" alt="WeChat tip QR code" width="220" />
 </p>
 
-> 二维码文件请以 `alipay.png` / `wechat.png` 命名放入 [`docs/images/donate/`](docs/images/donate/)（该目录已提交占位说明）；也可以把图片换成自己更喜欢的样式。
+> A WeChat tip QR is included above. Specs and replacement notes live in [`docs/images/donate/`](docs/images/donate/).
 
-## 📄 开源协议
+## 🙏 Acknowledgments
 
-Lo-Fi Music Box 使用 **MIT License** 发布，详见 [`LICENSE`](LICENSE)。你可以自由用于个人或商业项目，只需要保留原始版权声明。
+- Thanks to [labilio/lofi-radio](https://github.com/labilio/lofi-radio) for inspiration on desktop lofi player UX and station ideas.
+- Thanks to [Lofi Cafe](https://loficafe.net/) for ambient-radio / station-mood references.
 
-如果你 fork / 二次分发时希望使用别的协议，请注意 MIT 允许再授权，但必须保留原 MIT 版权与许可声明。
+## 📄 License
+
+Lo-Fi Music Box is released under the **MIT License** — see [`LICENSE`](LICENSE). Use it personally or commercially; keep the original copyright notice.
 
 ---
 

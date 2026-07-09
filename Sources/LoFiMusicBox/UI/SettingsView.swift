@@ -3,11 +3,11 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// macOS 偏好设置窗口（Cmd+, 触发）。当前包含五个分页：
-/// - 通用：应用语言、播放体验；
+/// - 通用：应用语言、播放体验、频道来源依赖说明；
 /// - 频道管理：增删改自定义频道、编辑或隐藏内置频道；
 /// - 数据管理：查看并打开用户数据目录；
 /// - 可用性检测：自动检测、手动检测、结果分布；
-/// - 关于：版本与说明信息。
+/// - 关于：应用身份与全部软件更新能力（检查策略、手动检查、状态）。
 struct SettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
 
@@ -138,26 +138,194 @@ private struct GeneralSettingsView: View {
     }
 }
 
+/// 关于页同时承载应用身份与全部软件更新能力（策略、手动检查、状态），
+/// 避免「通用改策略 / 关于点检查」拆成两处。
 private struct AboutSettingsView: View {
+    @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
+    @EnvironmentObject private var appSettings: AppSettingsStore
+    @State private var isShowingIntervalHelp = false
+
+    /// 两个操作按钮固定同宽，避免文案长短导致一宽一窄。
+    private let updateActionButtonWidth: CGFloat = 140
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(AppConstants.Identity.displayName)
-                .font(.title2.bold())
-
-            Text(LocalizedStrings.text("settings.about.description"))
-                .foregroundStyle(.secondary)
-
-            Divider()
-
-            Button {
-                showNoUpdateAvailableAlert()
-            } label: {
-                Label(LocalizedStrings.text("app.menu.check_updates"), systemImage: "arrow.triangle.2.circlepath")
+        Form {
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(AppConstants.Identity.displayName)
+                        .font(.title2.bold())
+                    Text(LocalizedStrings.text("settings.about.version", AppVersion.marketingVersion))
+                        .foregroundStyle(.secondary)
+                    Text(LocalizedStrings.text("settings.about.description"))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
             }
 
-            Spacer()
+            Section {
+                Picker(
+                    LocalizedStrings.text("update.policy.picker"),
+                    selection: Binding(
+                        get: { appSettings.updateCheckPolicy },
+                        set: { newPolicy in
+                            appSettings.updateUpdateCheckPolicy(newPolicy)
+                            updateCheckCoordinator.reschedule()
+                        }
+                    )
+                ) {
+                    ForEach(UpdateCheckPolicy.allCases) { policy in
+                        Text(policy.displayName).tag(policy)
+                    }
+                }
+
+                if appSettings.updateCheckPolicy == .periodic {
+                    Picker(selection: Binding(
+                        get: { appSettings.updatePeriodicIntervalHours },
+                        set: { hours in
+                            appSettings.updateUpdatePeriodicIntervalHours(hours)
+                            updateCheckCoordinator.reschedule()
+                        }
+                    )) {
+                        ForEach(AppConstants.Settings.updatePeriodicIntervalHourChoices, id: \.self) { hours in
+                            Text(updateIntervalLabel(hours)).tag(hours)
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(LocalizedStrings.text("update.interval.picker"))
+                            // 说明只走点击 popover；悬停仅短提示，避免系统 tooltip 截断长文案。
+                            Button {
+                                isShowingIntervalHelp.toggle()
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundStyle(.secondary)
+                                    .imageScale(.medium)
+                            }
+                            .buttonStyle(.plain)
+                            .help(LocalizedStrings.text("update.interval.help_hint"))
+                            .popover(isPresented: $isShowingIntervalHelp, arrowEdge: .bottom) {
+                                Text(LocalizedStrings.text("update.interval.help"))
+                                    .font(.callout)
+                                    .foregroundStyle(.primary)
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(width: 280, alignment: .leading)
+                                    .padding(12)
+                            }
+                            .accessibilityLabel(LocalizedStrings.text("update.interval.help_accessibility"))
+                        }
+                    }
+                }
+
+                if updateCheckCoordinator.hasDeferredUpdatePrompt {
+                    Text(LocalizedStrings.text("update.status.deferred_while_playing"))
+                        .font(.callout)
+                        .foregroundStyle(.orange)
+                }
+
+                if let statusText = statusSummaryText {
+                    Text(statusText)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack(spacing: 10) {
+                    Button {
+                        Task {
+                            await updateCheckCoordinator.checkNowFromUser()
+                        }
+                    } label: {
+                        Group {
+                            if updateCheckCoordinator.isChecking {
+                                HStack(spacing: 6) {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                    Text(LocalizedStrings.text("update.action.checking"))
+                                }
+                            } else {
+                                Label(
+                                    LocalizedStrings.text("app.menu.check_updates"),
+                                    systemImage: "arrow.triangle.2.circlepath"
+                                )
+                            }
+                        }
+                        .frame(width: updateActionButtonWidth)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                    .disabled(updateCheckCoordinator.isChecking)
+
+                    Button {
+                        updateCheckCoordinator.openReleasesPage()
+                    } label: {
+                        Label(
+                            LocalizedStrings.text("update.action.open_releases"),
+                            systemImage: "safari"
+                        )
+                        .frame(width: updateActionButtonWidth)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+
+                    Spacer(minLength: 0)
+                }
+
+                if let ignored = appSettings.updateIgnoredVersion {
+                    HStack {
+                        Text(LocalizedStrings.text("update.status.ignored", ignored))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button(LocalizedStrings.text("update.action.clear_ignore")) {
+                            appSettings.clearIgnoredUpdateVersion()
+                        }
+                        .font(.caption)
+                    }
+                }
+            } header: {
+                Text(LocalizedStrings.text("update.section.title"))
+            } footer: {
+                Text(LocalizedStrings.text("update.section.footer"))
+            }
         }
-        .padding(20)
+        .formStyle(.grouped)
+        .padding(.top, 4)
+    }
+
+    private func updateIntervalLabel(_ hours: Int) -> String {
+        switch hours {
+        case 24:
+            return LocalizedStrings.text("update.interval.daily")
+        case 168:
+            return LocalizedStrings.text("update.interval.weekly")
+        case 720:
+            return LocalizedStrings.text("update.interval.monthly")
+        default:
+            return LocalizedStrings.text("update.interval.weekly")
+        }
+    }
+
+    private var statusSummaryText: String? {
+        if case .updateAvailable(let release)? = updateCheckCoordinator.lastOutcome {
+            return LocalizedStrings.text(
+                "update.status.available",
+                release.marketingVersion
+            )
+        }
+        if let last = appSettings.updateLastCheckedAt {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            let stamped = formatter.string(from: last)
+            if case .failed(let message)? = updateCheckCoordinator.lastOutcome {
+                return LocalizedStrings.text("update.status.last_failed", stamped, message)
+            }
+            return LocalizedStrings.text("update.status.last_checked", stamped)
+        }
+        if case .failed(let message)? = updateCheckCoordinator.lastOutcome {
+            return LocalizedStrings.text("update.status.failed", message)
+        }
+        return nil
     }
 }
 
