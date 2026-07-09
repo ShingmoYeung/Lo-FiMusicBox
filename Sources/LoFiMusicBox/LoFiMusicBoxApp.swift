@@ -10,6 +10,7 @@ struct LoFiMusicBoxApp: App {
     @StateObject private var focusTimeService: FocusTimeService
     @StateObject private var appSettings: AppSettingsStore
     @StateObject private var scheduledHealthChecker: ScheduledHealthChecker
+    @StateObject private var updateCheckCoordinator: UpdateCheckCoordinator
     @StateObject private var mainWindowCoordinator: MainWindowCoordinator
 
     init() {
@@ -30,12 +31,17 @@ struct LoFiMusicBoxApp: App {
             settings: settings,
             playback: playback
         )
+        let updateChecker = UpdateCheckCoordinator(
+            settings: settings,
+            playback: playback
+        )
 
         _stationRepository = StateObject(wrappedValue: repository)
         _playbackCoordinator = StateObject(wrappedValue: playback)
         _focusTimeService = StateObject(wrappedValue: focus)
         _appSettings = StateObject(wrappedValue: settings)
         _scheduledHealthChecker = StateObject(wrappedValue: checker)
+        _updateCheckCoordinator = StateObject(wrappedValue: updateChecker)
         _mainWindowCoordinator = StateObject(wrappedValue: windowCoordinator)
         appDelegate.mainWindowCoordinator = windowCoordinator
     }
@@ -48,10 +54,18 @@ struct LoFiMusicBoxApp: App {
                 .environmentObject(focusTimeService)
                 .environmentObject(appSettings)
                 .environmentObject(scheduledHealthChecker)
+                .environmentObject(updateCheckCoordinator)
                 .environmentObject(mainWindowCoordinator)
                 .task {
-                    // App 启动后按当前设置启动周期性可用性检测。
+                    // App 启动后按当前设置启动周期性可用性检测与更新检查。
                     scheduledHealthChecker.reschedule()
+                    updateCheckCoordinator.reschedule()
+                }
+                .onChange(of: playbackCoordinator.isPlaying) { _, isPlaying in
+                    // 播放停下后，补上因「正在收听」而暂缓的更新提示。
+                    if !isPlaying {
+                        updateCheckCoordinator.presentDeferredPromptIfNeeded()
+                    }
                 }
         }
         .windowStyle(.hiddenTitleBar)
@@ -84,6 +98,7 @@ struct LoFiMusicBoxApp: App {
                 .environmentObject(focusTimeService)
                 .environmentObject(appSettings)
                 .environmentObject(scheduledHealthChecker)
+                .environmentObject(updateCheckCoordinator)
                 .environmentObject(mainWindowCoordinator)
         }
     }
@@ -171,13 +186,3 @@ private struct AppMenuBarContent: View {
     }
 }
 
-@MainActor
-func showNoUpdateAvailableAlert() {
-    NSApplication.shared.activate(ignoringOtherApps: true)
-    let alert = NSAlert()
-    alert.messageText = LocalizedStrings.text("app.alert.up_to_date.title")
-    alert.informativeText = LocalizedStrings.text("app.alert.up_to_date.message")
-    alert.alertStyle = .informational
-    alert.addButton(withTitle: LocalizedStrings.text("common.ok"))
-    alert.runModal()
-}

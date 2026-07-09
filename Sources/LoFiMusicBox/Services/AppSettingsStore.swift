@@ -73,6 +73,13 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var healthLastCheckedAt: Date?
     @Published private(set) var appLanguage: AppLanguage
 
+    /// 自动检查更新策略（只检查 / 通知，不会自动安装）。
+    @Published private(set) var updateCheckPolicy: UpdateCheckPolicy
+    @Published private(set) var updateLastCheckedAt: Date?
+    @Published private(set) var updateSnoozeUntil: Date?
+    @Published private(set) var updateIgnoredVersion: String?
+    @Published private(set) var updatePeriodicIntervalHours: Int
+
     private let userDefaults: UserDefaults
 
     init(userDefaults: UserDefaults = .standard) {
@@ -127,6 +134,32 @@ final class AppSettingsStore: ObservableObject {
         appLanguage = AppLanguage(
             rawValue: userDefaults.string(forKey: AppConstants.Settings.appLanguageStorageKey) ?? ""
         ) ?? .automatic
+
+        updateCheckPolicy = UpdateCheckPolicy(
+            rawValue: userDefaults.string(forKey: AppConstants.Settings.updateCheckPolicyStorageKey) ?? ""
+        ) ?? AppConstants.Settings.defaultUpdateCheckPolicy
+
+        updateLastCheckedAt = userDefaults.object(
+            forKey: AppConstants.Settings.updateLastCheckedAtStorageKey
+        ) as? Date
+
+        updateSnoozeUntil = userDefaults.object(
+            forKey: AppConstants.Settings.updateSnoozeUntilStorageKey
+        ) as? Date
+
+        updateIgnoredVersion = userDefaults.string(
+            forKey: AppConstants.Settings.updateIgnoredVersionStorageKey
+        )
+
+        let storedUpdateInterval = userDefaults.object(
+            forKey: AppConstants.Settings.updatePeriodicIntervalHoursStorageKey
+        ) as? NSNumber
+        let resolvedUpdateInterval = storedUpdateInterval?.intValue
+            ?? AppConstants.Settings.defaultUpdatePeriodicIntervalHours
+        updatePeriodicIntervalHours = AppConstants.Settings.updatePeriodicIntervalHourChoices
+            .contains(resolvedUpdateInterval)
+            ? resolvedUpdateInterval
+            : AppConstants.Settings.defaultUpdatePeriodicIntervalHours
     }
 
     func updatePreferredVolume(_ volume: Float) {
@@ -169,6 +202,36 @@ final class AppSettingsStore: ObservableObject {
     func updateAppLanguage(_ language: AppLanguage) {
         appLanguage = language
         userDefaults.set(language.rawValue, forKey: AppConstants.Settings.appLanguageStorageKey)
+    }
+
+    func updateUpdateCheckPolicy(_ policy: UpdateCheckPolicy) {
+        updateCheckPolicy = policy
+        userDefaults.set(policy.rawValue, forKey: AppConstants.Settings.updateCheckPolicyStorageKey)
+    }
+
+    func updateUpdateLastCheckedAt(_ date: Date) {
+        updateLastCheckedAt = date
+        userDefaults.set(date, forKey: AppConstants.Settings.updateLastCheckedAtStorageKey)
+    }
+
+    func updateUpdateSnoozeUntil(_ date: Date?) {
+        updateSnoozeUntil = date
+        userDefaults.set(date, forKey: AppConstants.Settings.updateSnoozeUntilStorageKey)
+    }
+
+    func updateIgnoredUpdateVersion(_ version: String?) {
+        updateIgnoredVersion = version
+        userDefaults.set(version, forKey: AppConstants.Settings.updateIgnoredVersionStorageKey)
+    }
+
+    func clearIgnoredUpdateVersion() {
+        updateIgnoredUpdateVersion(nil)
+    }
+
+    func updateUpdatePeriodicIntervalHours(_ hours: Int) {
+        guard AppConstants.Settings.updatePeriodicIntervalHourChoices.contains(hours) else { return }
+        updatePeriodicIntervalHours = hours
+        userDefaults.set(hours, forKey: AppConstants.Settings.updatePeriodicIntervalHoursStorageKey)
     }
 
     private static func clampedVolume(_ volume: Float) -> Float {

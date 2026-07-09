@@ -5,7 +5,33 @@ enum AppConstants {
     enum Identity {
         static let displayName = "Lo-Fi Music Box"
         static let applicationSupportDirectoryName = "Lo-Fi Music Box"
+        /// 兼容旧调用点；新请求优先用带运行时版本的 `runtimeUserAgent`。
         static let userAgent = "LoFiMusicBox/1.0"
+
+        static var runtimeUserAgent: String {
+            "LoFiMusicBox/\(AppVersion.marketingVersion)"
+        }
+    }
+
+    /// 检查更新：仅通过 GitHub Releases API，不维护国内镜像主备通道。
+    enum UpdateCheck {
+        static let githubOwner = "ShingmoYeung"
+        static let githubRepository = "Lo-FiMusicBox"
+        static let latestReleaseAPIURL =
+            "https://api.github.com/repos/\(githubOwner)/\(githubRepository)/releases/latest"
+        static let latestReleasePageURL =
+            "https://github.com/\(githubOwner)/\(githubRepository)/releases/latest"
+        static let requestTimeoutSeconds: TimeInterval = 10
+        /// 启动后延迟再静默检查，避免和起播、健康检测抢首屏网络。
+        static let startupDelaySeconds: TimeInterval = 8
+        /// 「稍后提醒」的默认间隔。
+        static let snoozeIntervalSeconds: TimeInterval = 24 * 60 * 60
+        /// `swift run` 无 Info.plist 版本字段时的回退值（与打包脚本 APP_VERSION 对齐）。
+        static let developmentFallbackMarketingVersion = "1.0.0"
+        static let developmentFallbackBuildVersion = "1"
+        static let acceptHeaderName = "Accept"
+        static let acceptHeaderValue = "application/vnd.github+json"
+        static let userAgentHeaderName = "User-Agent"
     }
 
     enum Resource {
@@ -57,12 +83,24 @@ enum AppConstants {
         /// 上次可用性检测的完成时间。
         static let healthLastCheckedAtStorageKey = "lofi-music-box-health-last-checked-at"
 
+        /// 更新检查策略：`off` / `onLaunch` / `periodic`。
+        static let updateCheckPolicyStorageKey = "lofi-music-box-update-check-policy"
+        static let updateLastCheckedAtStorageKey = "lofi-music-box-update-last-checked-at"
+        static let updateSnoozeUntilStorageKey = "lofi-music-box-update-snooze-until"
+        static let updateIgnoredVersionStorageKey = "lofi-music-box-update-ignored-version"
+        /// 定期检查间隔（小时）。
+        static let updatePeriodicIntervalHoursStorageKey = "lofi-music-box-update-periodic-interval-hours"
+
         /// 检测频率档位（分钟）。`0` 代表“仅手动”。
         static let healthCheckIntervalChoices: [Int] = [5, 10, 30, 60]
         static let defaultHealthCheckIntervalMinutes: Int = 30
         static let defaultHealthAutoCheckEnabled: Bool = true
         static let defaultHealthCheckOnlyWhenIdle: Bool = true
         static let defaultPlaybackAuraIntensity: PlaybackAuraIntensity = .balanced
+        static let defaultUpdateCheckPolicy: UpdateCheckPolicy = .onLaunch
+        /// 定期检查可选间隔（小时）。
+        static let updatePeriodicIntervalHourChoices: [Int] = [24, 168]
+        static let defaultUpdatePeriodicIntervalHours: Int = 24
     }
 
     enum StationTypeInference {

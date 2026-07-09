@@ -48,6 +48,7 @@ struct SettingsView: View {
 
 private struct GeneralSettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
+    @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
 
     var body: some View {
         Form {
@@ -96,9 +97,54 @@ private struct GeneralSettingsView: View {
             } footer: {
                 Text(LocalizedStrings.text("general.dependencies.footer"))
             }
+
+            Section {
+                Picker(
+                    LocalizedStrings.text("update.policy.picker"),
+                    selection: Binding(
+                        get: { appSettings.updateCheckPolicy },
+                        set: { newPolicy in
+                            appSettings.updateUpdateCheckPolicy(newPolicy)
+                            updateCheckCoordinator.reschedule()
+                        }
+                    )
+                ) {
+                    ForEach(UpdateCheckPolicy.allCases) { policy in
+                        Text(policy.displayName).tag(policy)
+                    }
+                }
+
+                if appSettings.updateCheckPolicy == .periodic {
+                    Picker(
+                        LocalizedStrings.text("update.interval.picker"),
+                        selection: Binding(
+                            get: { appSettings.updatePeriodicIntervalHours },
+                            set: { hours in
+                                appSettings.updateUpdatePeriodicIntervalHours(hours)
+                                updateCheckCoordinator.reschedule()
+                            }
+                        )
+                    ) {
+                        ForEach(AppConstants.Settings.updatePeriodicIntervalHourChoices, id: \.self) { hours in
+                            Text(updateIntervalLabel(hours)).tag(hours)
+                        }
+                    }
+                }
+            } header: {
+                Text(LocalizedStrings.text("update.section.title"))
+            } footer: {
+                Text(LocalizedStrings.text("update.section.footer"))
+            }
         }
         .formStyle(.grouped)
         .padding(.top, 4)
+    }
+
+    private func updateIntervalLabel(_ hours: Int) -> String {
+        if hours >= 168 {
+            return LocalizedStrings.text("update.interval.weekly")
+        }
+        return LocalizedStrings.text("update.interval.hours", hours)
     }
 
     /// 频道来源 × 外部依赖对照表：让用户一眼看清"每种源需要什么组件、是必需还是可选"。
@@ -139,25 +185,99 @@ private struct GeneralSettingsView: View {
 }
 
 private struct AboutSettingsView: View {
+    @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
+    @EnvironmentObject private var appSettings: AppSettingsStore
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(AppConstants.Identity.displayName)
                 .font(.title2.bold())
 
+            Text(LocalizedStrings.text("settings.about.version", AppVersion.displayString))
+                .foregroundStyle(.secondary)
+
             Text(LocalizedStrings.text("settings.about.description"))
+                .foregroundStyle(.secondary)
+
+            Text(LocalizedStrings.text("settings.about.update_source_note"))
+                .font(.caption)
                 .foregroundStyle(.secondary)
 
             Divider()
 
-            Button {
-                showNoUpdateAvailableAlert()
-            } label: {
-                Label(LocalizedStrings.text("app.menu.check_updates"), systemImage: "arrow.triangle.2.circlepath")
+            if updateCheckCoordinator.hasDeferredUpdatePrompt {
+                Text(LocalizedStrings.text("update.status.deferred_while_playing"))
+                    .font(.callout)
+                    .foregroundStyle(.orange)
+            }
+
+            if let statusText = statusSummaryText {
+                Text(statusText)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    Task {
+                        await updateCheckCoordinator.checkNowFromUser()
+                    }
+                } label: {
+                    if updateCheckCoordinator.isChecking {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text(LocalizedStrings.text("update.action.checking"))
+                    } else {
+                        Label(
+                            LocalizedStrings.text("app.menu.check_updates"),
+                            systemImage: "arrow.triangle.2.circlepath"
+                        )
+                    }
+                }
+                .disabled(updateCheckCoordinator.isChecking)
+
+                Button {
+                    updateCheckCoordinator.openReleasesPage()
+                } label: {
+                    Label(
+                        LocalizedStrings.text("update.action.open_releases"),
+                        systemImage: "safari"
+                    )
+                }
+            }
+
+            if let ignored = appSettings.updateIgnoredVersion {
+                HStack {
+                    Text(LocalizedStrings.text("update.status.ignored", ignored))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button(LocalizedStrings.text("update.action.clear_ignore")) {
+                        appSettings.clearIgnoredUpdateVersion()
+                    }
+                    .font(.caption)
+                }
             }
 
             Spacer()
         }
         .padding(20)
+    }
+
+    private var statusSummaryText: String? {
+        if let last = appSettings.updateLastCheckedAt {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            let stamped = formatter.string(from: last)
+            if case .failed(let message)? = updateCheckCoordinator.lastOutcome {
+                return LocalizedStrings.text("update.status.last_failed", stamped, message)
+            }
+            return LocalizedStrings.text("update.status.last_checked", stamped)
+        }
+        if case .failed(let message)? = updateCheckCoordinator.lastOutcome {
+            return LocalizedStrings.text("update.status.failed", message)
+        }
+        return nil
     }
 }
 
