@@ -196,7 +196,7 @@ LoFiMusicBox/
 If the music box brightens your workday, a coffee helps keep maintenance, station pools, and notarization moving.
 
 <p align="center">
-  <img src="docs/images/donate/wechat.png" alt="WeChat tip QR code" width="220" />
+  <img src="docs/images/donate/wechat-tip.png" alt="WeChat tip QR code" width="220" />
 </p>
 
 > A WeChat tip QR is included above. Specs and replacement notes live in [`docs/images/donate/`](docs/images/donate/).

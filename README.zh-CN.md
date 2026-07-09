@@ -197,7 +197,7 @@ LoFiMusicBox/
 如果 Lo-Fi Music Box 让你的工作日多了一点氛围感，欢迎请作者喝杯咖啡。任何金额都是给项目继续维护、扩音源池、做公证签名的重要动力。
 
 <p align="center">
-  <img src="docs/images/donate/wechat.png" alt="微信赞赏码" width="220" />
+  <img src="docs/images/donate/wechat-tip.png" alt="微信赞赏码" width="220" />
 </p>
 
 > 上方已提供微信赞赏码。规格与替换说明见 [`docs/images/donate/`](docs/images/donate/)。
