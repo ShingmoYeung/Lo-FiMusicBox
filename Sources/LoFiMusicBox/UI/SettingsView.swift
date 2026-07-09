@@ -216,16 +216,15 @@ private struct AboutSettingsView: View {
                                     .controlSize(.small)
                                 Text(LocalizedStrings.text("update.action.checking"))
                             }
-                            .frame(maxWidth: .infinity)
                         } else {
                             Label(
                                 LocalizedStrings.text("app.menu.check_updates"),
                                 systemImage: "arrow.triangle.2.circlepath"
                             )
-                            .frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
                     .disabled(updateCheckCoordinator.isChecking)
 
                     Button {
@@ -235,9 +234,11 @@ private struct AboutSettingsView: View {
                             LocalizedStrings.text("update.action.open_releases"),
                             systemImage: "safari"
                         )
-                        .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
+                    .controlSize(.regular)
+
+                    Spacer(minLength: 0)
                 }
 
                 if let ignored = appSettings.updateIgnoredVersion {
