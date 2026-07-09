@@ -67,7 +67,6 @@
 "update.alert.up_to_date.message" = "你正在使用 %@，暂无更新的 GitHub Release。";
 "update.alert.available.title" = "发现新版本";
 "update.alert.available.message" = "GitHub 上有新版本 %@（当前 %@）。下载安装会替换应用，建议在方便暂停收听时再更新。";
-"update.alert.available.message_with_notes" = "GitHub 上有新版本 %@（当前 %@）。\n\n%@\n\n下载安装会替换应用，建议在方便暂停收听时再更新。";
 "update.alert.network.title" = "无法检查更新";
 "update.alert.network.message" = "%@\n\n更新信息来自 GitHub。若你在中国大陆或当前网络无法稳定访问 GitHub，可检查网络、使用代理后重试，或在浏览器中打开 Releases 页面。";
 "update.alert.ignored.title" = "该版本已被忽略";

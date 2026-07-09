@@ -221,27 +221,20 @@ final class UpdateCheckCoordinator: ObservableObject {
     }
 
     private func presentUpdateAvailableAlert(for release: GitHubLatestRelease) {
-        let notes = truncatedReleaseNotes(release.body)
-        let info: String
-        if notes.isEmpty {
-            info = LocalizedStrings.text(
-                "update.alert.available.message",
-                release.marketingVersion,
-                AppVersion.marketingVersion
-            )
-        } else {
-            info = LocalizedStrings.text(
-                "update.alert.available.message_with_notes",
-                release.marketingVersion,
-                AppVersion.marketingVersion,
-                notes
-            )
-        }
+        let notes = plainReleaseNotes(release.body)
+        let info = LocalizedStrings.text(
+            "update.alert.available.message",
+            release.marketingVersion,
+            AppVersion.marketingVersion
+        )
 
         runAlert { alert in
             alert.messageText = LocalizedStrings.text("update.alert.available.title")
             alert.informativeText = info
             alert.alertStyle = .informational
+            if !notes.isEmpty {
+                alert.accessoryView = makeReleaseNotesAccessoryView(notes: notes)
+            }
             alert.addButton(withTitle: LocalizedStrings.text("update.action.open_download"))
             alert.addButton(withTitle: LocalizedStrings.text("update.action.remind_later"))
             alert.addButton(withTitle: LocalizedStrings.text("update.action.ignore_version"))
@@ -257,14 +250,132 @@ final class UpdateCheckCoordinator: ObservableObject {
         }
     }
 
-    private func truncatedReleaseNotes(_ body: String?) -> String {
+    /// 把 GitHub Release Markdown body 收成适合 NSAlert 附件区的纯文本（不渲染富文本）。
+    private func plainReleaseNotes(_ body: String?) -> String {
         guard let body else { return "" }
-        let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return "" }
-        let limit = 280
-        if trimmed.count <= limit { return trimmed }
-        let end = trimmed.index(trimmed.startIndex, offsetBy: limit)
-        return String(trimmed[..<end]) + "…"
+        var text = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return "" }
+
+        // 代码围栏：去掉围栏标记，保留内容。
+        text = text.replacingOccurrences(
+            of: #"```[^\n]*\n([\s\S]*?)```"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        // 图片：丢弃。
+        text = text.replacingOccurrences(
+            of: #"!\[[^\]]*\]\([^)]*\)"#,
+            with: "",
+            options: .regularExpression
+        )
+        // 链接：[label](url) → label (url)
+        text = text.replacingOccurrences(
+            of: #"\[([^\]]+)\]\(([^)]+)\)"#,
+            with: "$1 ($2)",
+            options: .regularExpression
+        )
+        // 标题前缀 ## / ### …
+        text = text.replacingOccurrences(
+            of: #"(?m)^#{1,6}\s+"#,
+            with: "",
+            options: .regularExpression
+        )
+        // 引用 >
+        text = text.replacingOccurrences(
+            of: #"(?m)^>\s?"#,
+            with: "",
+            options: .regularExpression
+        )
+        // 无序/有序列表
+        text = text.replacingOccurrences(
+            of: #"(?m)^[\t ]*[-*+]\s+"#,
+            with: "• ",
+            options: .regularExpression
+        )
+        text = text.replacingOccurrences(
+            of: #"(?m)^[\t ]*\d+\.\s+"#,
+            with: "• ",
+            options: .regularExpression
+        )
+        // 加粗 / 斜体 / 行内代码
+        text = text.replacingOccurrences(
+            of: #"\*\*([^*]+)\*\*"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        text = text.replacingOccurrences(
+            of: #"__([^_]+)__"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        text = text.replacingOccurrences(
+            of: #"(?<!\*)\*([^*\n]+)\*(?!\*)"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        text = text.replacingOccurrences(
+            of: #"(?<!_)_([^_\n]+)_(?!_)"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        text = text.replacingOccurrences(
+            of: #"`([^`]+)`"#,
+            with: "$1",
+            options: .regularExpression
+        )
+        // 水平线
+        text = text.replacingOccurrences(
+            of: #"(?m)^(?:-{3,}|\*{3,}|_{3,})\s*$"#,
+            with: "",
+            options: .regularExpression
+        )
+        // 压缩多余空行
+        text = text.replacingOccurrences(
+            of: #"\n{3,}"#,
+            with: "\n\n",
+            options: .regularExpression
+        )
+        text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let limit = AppConstants.UpdateCheck.alertReleaseNotesMaxCharacterCount
+        if text.count > limit {
+            let end = text.index(text.startIndex, offsetBy: limit)
+            return String(text[..<end]) + "…"
+        }
+        return text
+    }
+
+    private func makeReleaseNotesAccessoryView(notes: String) -> NSView {
+        let width = AppConstants.UpdateCheck.alertReleaseNotesAccessoryWidth
+        let height = AppConstants.UpdateCheck.alertReleaseNotesAccessoryHeight
+
+        let scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: width, height: height))
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+        scrollView.borderType = .bezelBorder
+        scrollView.drawsBackground = true
+
+        let textView = NSTextView(frame: NSRect(x: 0, y: 0, width: width, height: height))
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.drawsBackground = false
+        textView.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+        textView.textColor = .labelColor
+        textView.string = notes
+        textView.textContainerInset = NSSize(width: 4, height: 6)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(
+            width: width,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+        textView.minSize = NSSize(width: 0, height: 0)
+        textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+
+        scrollView.documentView = textView
+        return scrollView
     }
 
     private func runAlert(_ configure: (NSAlert) -> Void) {

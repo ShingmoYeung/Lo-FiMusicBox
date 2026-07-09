@@ -57,10 +57,16 @@ Zero third-party dependencies — AVFoundation + SwiftUI + AppKit only. The pack
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="docs/images/menubar-turntable-preview.png" alt="Menu bar turntable preview" width="720" />
+  <img src="docs/images/preview/main-player.png" alt="Main player" width="720" />
 </p>
 
-(More main UI / station manager / Settings shots welcome — put them under `docs/images/preview/` in a PR.)
+<p align="center">
+  <img src="docs/images/preview/settings.png" alt="Settings — General" width="500" />
+</p>
+
+<p align="center">
+  <img src="docs/images/preview/menubar.png" alt="Menu bar menu" width="280" />
+</p>
 
 ## 📦 Download & install
 

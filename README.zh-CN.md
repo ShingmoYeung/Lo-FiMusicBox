@@ -58,10 +58,16 @@ Lo-Fi Music Box 是一个 SwiftUI + AppKit 编写的 macOS 小组件，围绕"�
 ## 📸 截图
 
 <p align="center">
-  <img src="docs/images/menubar-turntable-preview.png" alt="Menu bar turntable preview" width="720" />
+  <img src="docs/images/preview/main-player.png" alt="主唱机界面" width="720" />
 </p>
 
-（更多主界面 / 频道管理 / 设置面板截图欢迎社区补充；提 PR 时可以把截图放到 `docs/images/preview/`。）
+<p align="center">
+  <img src="docs/images/preview/settings.png" alt="首选项 · 通用" width="500" />
+</p>
+
+<p align="center">
+  <img src="docs/images/preview/menubar.png" alt="菜单栏" width="280" />
+</p>
 
 ## 📦 下载与安装
 

@@ -34,6 +34,11 @@ enum AppConstants {
         static let notificationRequestIdentifierPrefix = "lofi-music-box-update-"
         static let notificationUserInfoReleaseURLKey = "releaseHTMLURL"
         static let notificationUserInfoVersionKey = "releaseVersion"
+        /// 「发现新版本」Alert 附件区高度（可滚动纯文本说明）。
+        static let alertReleaseNotesAccessoryHeight: CGFloat = 180
+        static let alertReleaseNotesAccessoryWidth: CGFloat = 360
+        /// 极端超长 Release body 的展示上限（字符），超出末尾加省略号。
+        static let alertReleaseNotesMaxCharacterCount = 4000
     }
 
     enum Resource {

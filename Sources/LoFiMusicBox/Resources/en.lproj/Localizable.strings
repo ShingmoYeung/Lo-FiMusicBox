@@ -67,7 +67,6 @@
 "update.alert.up_to_date.message" = "You are on %@. No newer GitHub Release was found.";
 "update.alert.available.title" = "Update Available";
 "update.alert.available.message" = "GitHub has version %@ (you have %@). Installing replaces the app—update when you can pause listening.";
-"update.alert.available.message_with_notes" = "GitHub has version %@ (you have %@).\n\n%@\n\nInstalling replaces the app—update when you can pause listening.";
 "update.alert.network.title" = "Could Not Check for Updates";
 "update.alert.network.message" = "%@\n\nUpdate info comes from GitHub. If GitHub is blocked or unstable on your network (for example in mainland China), check your connection, use a proxy, retry later, or open the Releases page in a browser.";
 "update.alert.ignored.title" = "Version Ignored";
