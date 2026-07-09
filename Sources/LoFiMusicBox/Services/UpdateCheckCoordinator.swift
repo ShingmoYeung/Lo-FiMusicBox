@@ -199,7 +199,7 @@ final class UpdateCheckCoordinator: ObservableObject {
     }
 
     /// 手动检查：模态 Alert；后台检查：系统通知（播放中则暂缓）。
-    /// 若通知权限被拒，则在非播放时回退为一次 Alert，避免用户完全收不到提醒。
+    /// 通知权限被拒时不弹 Alert，关于页仍可通过 `lastOutcome` 看到「有可用更新」。
     private func presentUpdateAvailable(
         for release: GitHubLatestRelease,
         triggeredByUser: Bool,

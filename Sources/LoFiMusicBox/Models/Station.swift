@@ -4,12 +4,6 @@ import Foundation
 /// - `.bilibili`：先把直播间解析成 HLS 直链（`BilibiliStreamResolver`），再交给 AVFoundation 播放；
 /// - `.mp3`/`.m3u8`：直接交给 AVFoundation 播放。
 /// 所有类型最终都走原生 `AVPlayer`，无 WebView。
-///
-/// 历史说明：v0.x 版本曾接入过 `.youtube` 类型（依赖本机 yt-dlp 解析），
-/// 但因 googlevideo CDN 返回的音频常为 DASH 分片容器、AVFoundation 无法直接解封装，
-/// 在 v1.0.0 稳定版中移除。为向后兼容旧 `custom-stations.json`，
-/// `Station.init(from:)` 会把 `type: "youtube"` 自动降级为 `.mp3`（并在健康记录里标不可用），
-/// 用户可在【频道管理】里删除或改写这些历史条目。
 enum StationType: String, Codable, CaseIterable, Identifiable {
     case bilibili
     case mp3
@@ -48,12 +42,6 @@ enum StationType: String, Codable, CaseIterable, Identifiable {
         }
         return .mp3
     }
-}
-
-/// 用于向后兼容旧 JSON 中已被移除的 `type` 值（当前只有 `"youtube"`）。
-/// 解码时若命中，则外层把 station 视作已弃用来源，降级为 mp3 并标不可用。
-enum DeprecatedStationTypeRawValue {
-    static let youtube = "youtube"
 }
 
 /// 频道来源：内置（随 App 分发）或自定义（用户添加）。
@@ -250,31 +238,8 @@ struct Station: Identifiable, Codable, Equatable {
             ?? UUID().uuidString
         name = try container.decode(String.self, forKey: .name)
         category = try container.decode(String.self, forKey: .category)
-        // 兼容旧版遗留的 `type: "youtube"`：v1.0.0 移除了 YouTube 支持，
-        // 直接抛错会导致整个 JSON 无法加载、用户丢失全部自定义频道，
-        // 因此这里降级为 `.mp3` 并把该 station 的 `lastHealth` 强制设为不可用，
-        // 附上明确的中文提示告诉用户该源已被弃用，可自行删除或改成其他协议。
-        let rawType = try container.decode(String.self, forKey: .type)
-        if let normalized = StationType(rawValue: rawType) {
-            type = normalized
-            lastHealth = try container.decodeIfPresent(StationHealth.self, forKey: .lastHealth)
-        } else if rawType == DeprecatedStationTypeRawValue.youtube {
-            type = .mp3
-            lastHealth = StationHealth(
-                status: .unavailable,
-                checkedAt: Date(),
-                responseTimeMilliseconds: nil,
-                statusCode: nil,
-                contentType: nil,
-                message: LocalizedStrings.text("station.health.message.deprecated_youtube")
-            )
-        } else {
-            throw DecodingError.dataCorruptedError(
-                forKey: .type,
-                in: container,
-                debugDescription: "Unknown Station.type: \(rawType)"
-            )
-        }
+        type = try container.decode(StationType.self, forKey: .type)
+        lastHealth = try container.decodeIfPresent(StationHealth.self, forKey: .lastHealth)
         url = try container.decode(URL.self, forKey: .url)
         style1 = try container.decodeIfPresent(String.self, forKey: .style1)
         style2 = try container.decodeIfPresent(String.self, forKey: .style2)

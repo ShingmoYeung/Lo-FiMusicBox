@@ -5,8 +5,6 @@ enum AppConstants {
     enum Identity {
         static let displayName = "Lo-Fi Music Box"
         static let applicationSupportDirectoryName = "Lo-Fi Music Box"
-        /// 兼容旧调用点；新请求优先用带运行时版本的 `runtimeUserAgent`。
-        static let userAgent = "LoFiMusicBox/1.0"
 
         static var runtimeUserAgent: String {
             "LoFiMusicBox/\(AppVersion.marketingVersion)"
@@ -28,7 +26,6 @@ enum AppConstants {
         static let snoozeIntervalSeconds: TimeInterval = 24 * 60 * 60
         /// `swift run` 无 Info.plist 版本字段时的回退值（与打包脚本 APP_VERSION 对齐）。
         static let developmentFallbackMarketingVersion = "1.0.0"
-        static let developmentFallbackBuildVersion = "1"
         static let acceptHeaderName = "Accept"
         static let acceptHeaderValue = "application/vnd.github+json"
         static let userAgentHeaderName = "User-Agent"
@@ -96,7 +93,7 @@ enum AppConstants {
         /// 定期检查间隔（小时）。
         static let updatePeriodicIntervalHoursStorageKey = "lofi-music-box-update-periodic-interval-hours"
 
-        /// 检测频率档位（分钟）。`0` 代表“仅手动”。
+        /// 自动检测开启时的频率档位（分钟）。仅手动检测由「启用自动可用性检测」开关控制，与间隔无关。
         static let healthCheckIntervalChoices: [Int] = [5, 10, 30, 60]
         static let defaultHealthCheckIntervalMinutes: Int = 30
         static let defaultHealthAutoCheckEnabled: Bool = true
@@ -167,8 +164,8 @@ enum AppConstants {
     }
 
     enum UserInterface {
-        // 主悬浮小组件窗口尺寸：保持紧凑，同时容纳音量控制和频道标签。
-        // 高度从 220 提升到 248：给右侧"频道名两行 + 换行标签"和底部"复古控制台"留出呼吸空间。
+        // 主悬浮小组件窗口尺寸：保持紧凑，同时容纳音量控制和频道信息。
+        // 高度从 220 提升到 248：给琥珀数显与底部复古控制台留出呼吸空间。
         static let widgetWindowWidth: CGFloat = 360
         static let widgetWindowHeight: CGFloat = 248
         /// 圆角半径选 16：足够显示软圆角，又能保证 14pt padding 的顶部按钮完全落在
@@ -176,10 +173,6 @@ enum AppConstants {
         static let widgetCornerRadius: CGFloat = 16
         /// 顶部按钮离窗口边缘的距离，必须 >= widgetCornerRadius 才能不被圆角剪。
         static let widgetEdgeInset: CGFloat = 14
-        /// 唱机与右侧信息区的水平间距，比通用 mediumSpacing 更宽，避免信息贴着唱机。
-        static let vinylInfoSpacing: CGFloat = 18
-        /// 主界面信息区行内标签最多直接展示的数量，超出部分用 "+N" 汇总。
-        static let maxInlineTags = 5
         static let stationManagerMinimumWidth: CGFloat = 520
         static let stationManagerMinimumHeight: CGFloat = 620
         static let mediumSpacing: CGFloat = 12

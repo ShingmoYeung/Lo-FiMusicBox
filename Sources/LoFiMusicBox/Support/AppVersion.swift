@@ -1,6 +1,6 @@
 import Foundation
 
-/// 从运行中的 bundle 读取营销版本 / 构建号。
+/// 从运行中的 bundle 读取营销版本。
 /// 打包后的 `.app` 由 `scripts/package-macos-app.sh` 写入 Info.plist；
 /// `swift run` 调试时若没有 CFBundle 字段，则回退到开发占位版本，避免比较逻辑崩溃。
 enum AppVersion {
@@ -11,19 +11,6 @@ enum AppVersion {
             return short
         }
         return AppConstants.UpdateCheck.developmentFallbackMarketingVersion
-    }
-
-    static var buildVersion: String {
-        let info = Bundle.main.infoDictionary
-        if let build = info?["CFBundleVersion"] as? String,
-           !build.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return build
-        }
-        return AppConstants.UpdateCheck.developmentFallbackBuildVersion
-    }
-
-    static var displayString: String {
-        "\(marketingVersion) (\(buildVersion))"
     }
 
     /// 比较两个营销版本号。返回值：`lhs < rhs` 为负，相等为 0，`lhs > rhs` 为正。

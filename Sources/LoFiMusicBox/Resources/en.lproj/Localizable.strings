@@ -152,7 +152,6 @@
 "station.management.favorite_count" = "Favorites";
 "station.management.hidden_count" = "Hidden";
 "station.management.checking" = "Checking";
-"station.management.favorited" = "Favorite";
 "station.management.more_actions" = "More Actions";
 "station.management.filter_help" = "Click to filter; click again to clear";
 "station.management.view_details" = "View Details";
@@ -209,13 +208,8 @@
 "station.health.message.bilibili.room_not_live" = "The host is not live";
 "station.health.message.bilibili.no_stream" = "No playable HLS live stream was found";
 "station.health.message.bilibili.bad_response" = "Bilibili returned an unexpected response";
-"station.health.message.deprecated_youtube" = "YouTube stations were removed in v1.0.0 and can no longer play. Delete this entry in Station Management, or change it to an MP3 / HLS / Bilibili Live URL.";
 "availability.section.auto" = "Automatic Checks";
 "availability.section.manual" = "Manual Check";
-"availability.section.aura" = "Playback Ambience";
-"availability.aura.picker" = "Playback Effects";
-"availability.aura.help" = "Adjust the ambience effect intensity while the record is playing.";
-"availability.aura.footer" = "Off is best for a low-distraction setup. Rich shows more particles and light effects.";
 "availability.aura.off" = "Off";
 "availability.aura.subtle" = "Subtle";
 "availability.aura.balanced" = "Balanced";

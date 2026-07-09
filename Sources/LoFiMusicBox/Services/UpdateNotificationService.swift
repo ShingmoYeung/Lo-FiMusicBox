@@ -27,7 +27,7 @@ final class UpdateNotificationService: NSObject {
                 options: [.alert, .sound, .badge]
             )
         } catch {
-            // 拒绝或失败时静默：后台有更新可回退到关于页状态 / 暂停后弹窗。
+            // 拒绝或失败时静默：关于页仍可通过检查结果状态看到可用更新。
         }
     }
 

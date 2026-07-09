@@ -78,6 +78,10 @@ struct LoFiMusicBoxApp: App {
             width: AppConstants.UserInterface.widgetWindowWidth,
             height: AppConstants.UserInterface.widgetWindowHeight
         )
+        // 菜单栏小组件只允许一扇主窗：清空系统「新建」组，避免 ⌘N 再开一扇 WindowGroup。
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+        }
 
         MenuBarExtra {
             AppMenuBarContent()
@@ -153,7 +157,11 @@ private struct AppMenuBarContent: View {
 
         Button {
             mainWindowCoordinator.prepareForUserFacingWindow()
-            NSApplication.shared.orderFrontStandardAboutPanel(nil)
+            // 只展示营销版本；.version 置空避免系统 About 再拼出「1.0.0 (1)」构建号。
+            NSApplication.shared.orderFrontStandardAboutPanel(options: [
+                .applicationVersion: AppVersion.marketingVersion,
+                .version: ""
+            ])
         } label: {
             menuItemLabel(LocalizedStrings.text("app.menu.about"))
         }

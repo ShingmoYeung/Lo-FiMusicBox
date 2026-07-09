@@ -136,7 +136,6 @@ struct StationManagementView: View {
                 } label: {
                     Label(LocalizedStrings.text("station.management.add"), systemImage: "plus")
                 }
-                .keyboardShortcut("n", modifiers: [.command])
             }
 
             HStack(spacing: 8) {

@@ -152,7 +152,6 @@
 "station.management.favorite_count" = "收藏";
 "station.management.hidden_count" = "已隱藏";
 "station.management.checking" = "檢查中";
-"station.management.favorited" = "已收藏";
 "station.management.more_actions" = "更多操作";
 "station.management.filter_help" = "點選篩選，再次點選取消篩選";
 "station.management.view_details" = "查看詳情";
@@ -209,13 +208,8 @@
 "station.health.message.bilibili.room_not_live" = "主播目前未開播";
 "station.health.message.bilibili.no_stream" = "找不到可播放的 HLS 直播串流";
 "station.health.message.bilibili.bad_response" = "Bilibili 介面回傳異常";
-"station.health.message.deprecated_youtube" = "YouTube 頻道已在 v1.0.0 移除，無法播放。請在【頻道管理】中刪除該條目，或改成 MP3 / HLS / Bilibili 直播地址。";
 "availability.section.auto" = "自動檢查";
 "availability.section.manual" = "手動檢查";
-"availability.section.aura" = "播放氛圍";
-"availability.aura.picker" = "播放動效";
-"availability.aura.help" = "控制唱盤播放時的氛圍動效強度。";
-"availability.aura.footer" = "關閉適合低干擾使用；豐富會顯示更多粒子與光效。";
 "availability.aura.off" = "關閉";
 "availability.aura.subtle" = "輕微";
 "availability.aura.balanced" = "均衡";

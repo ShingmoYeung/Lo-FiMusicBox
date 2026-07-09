@@ -154,7 +154,7 @@ private struct AboutSettingsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(AppConstants.Identity.displayName)
                         .font(.title2.bold())
-                    Text(LocalizedStrings.text("settings.about.version", AppVersion.displayString))
+                    Text(LocalizedStrings.text("settings.about.version", AppVersion.marketingVersion))
                         .foregroundStyle(.secondary)
                     Text(LocalizedStrings.text("settings.about.description"))
                         .foregroundStyle(.secondary)

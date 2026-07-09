@@ -115,7 +115,7 @@ final class StationRepository: ObservableObject {
 
     func importCustomStations(from url: URL) throws {
         let data = try Data(contentsOf: url)
-        let importedStations = try decoder.decode([Station].self, from: data)
+        let importedStations = try decodeStationsLeniently(from: data)
 
         var seenStationIds: Set<String> = []
         customStations = importedStations.map { station in
@@ -307,7 +307,8 @@ final class StationRepository: ObservableObject {
         guard fileManager.fileExists(atPath: customStationsURL.path) else { return }
         do {
             let data = try Data(contentsOf: customStationsURL)
-            customStations = try decoder.decode([Station].self, from: data).map { station -> Station in
+            // 逐条解码：未知 type 等坏条目只跳过该条，避免拖垮整份自定义列表。
+            customStations = try decodeStationsLeniently(from: data).map { station -> Station in
                 var station = station
                 station.source = .custom
                 if !station.stableIdentifier.hasPrefix(AppConstants.Resource.customStationIdPrefix) {
@@ -319,6 +320,26 @@ final class StationRepository: ObservableObject {
         } catch {
             loadError = "读取自定义频道失败：\(error.localizedDescription)"
             customStations = []
+        }
+    }
+
+    /// 先拆成 JSON 数组元素，再逐条 `Station` 解码；单条失败则跳过。
+    private func decodeStationsLeniently(from data: Data) throws -> [Station] {
+        let root = try JSONSerialization.jsonObject(with: data)
+        guard let elements = root as? [Any] else {
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(
+                    codingPath: [],
+                    debugDescription: "Expected a JSON array of stations"
+                )
+            )
+        }
+        return elements.compactMap { element in
+            guard JSONSerialization.isValidJSONObject(element),
+                  let elementData = try? JSONSerialization.data(withJSONObject: element) else {
+                return nil
+            }
+            return try? decoder.decode(Station.self, from: elementData)
         }
     }
 

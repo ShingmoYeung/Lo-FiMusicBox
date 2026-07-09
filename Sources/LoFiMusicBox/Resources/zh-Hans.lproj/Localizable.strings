@@ -152,7 +152,6 @@
 "station.management.favorite_count" = "收藏";
 "station.management.hidden_count" = "已隐藏";
 "station.management.checking" = "检测中";
-"station.management.favorited" = "已收藏";
 "station.management.more_actions" = "更多操作";
 "station.management.filter_help" = "点击筛选，再次点击取消筛选";
 "station.management.view_details" = "查看详情";
@@ -209,13 +208,8 @@
 "station.health.message.bilibili.room_not_live" = "主播当前未开播";
 "station.health.message.bilibili.no_stream" = "未找到可用的 HLS 直播流";
 "station.health.message.bilibili.bad_response" = "B 站接口返回异常";
-"station.health.message.deprecated_youtube" = "YouTube 频道已在 v1.0.0 移除，无法播放。请在【频道管理】中删除该条目，或改成 MP3 / HLS / 哔哩哔哩直播地址。";
 "availability.section.auto" = "自动检测";
 "availability.section.manual" = "手动检测";
-"availability.section.aura" = "播放氛围";
-"availability.aura.picker" = "播放动效";
-"availability.aura.help" = "控制唱盘播放时的氛围动效强度。";
-"availability.aura.footer" = "关闭适合低干扰使用；丰富会显示更多粒子和光效。";
 "availability.aura.off" = "关闭";
 "availability.aura.subtle" = "轻微";
 "availability.aura.balanced" = "均衡";
