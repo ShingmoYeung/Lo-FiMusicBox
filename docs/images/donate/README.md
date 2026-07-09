@@ -1,18 +1,17 @@
-# 赞赏二维码
+# Tip QR code
 
-请把你的收款码图片放在这个目录，文件名固定为：
+Put your tip QR image in this directory with a fixed filename:
 
-- `alipay.png` —— 支付宝赞赏码
-- `wechat.png` —— 微信赞赏码
+- `wechat.png` — WeChat tip QR code
 
-推荐规格：
+Recommended specs:
 
-- 正方形 PNG，边长 ≥ 600px（README 会缩放到 220px 展示，留一定 DPI 余量在高分屏上更清晰）；
-- 背景建议纯白或纯浅色，避免与 README 深色区块混色；
-- 如需在生成图上加口号，请留出四角至少 40px 的静区，防止扫码识别失败。
+- Square PNG, edge ≥ 600px (README displays at 220px; extra resolution helps on Retina);
+- Prefer a plain white or light background;
+- If you add slogan text on the image, keep at least ~40px quiet margin at the corners so scanning still works.
 
-替换后无需改动 `README.md`，图片会通过 `docs/images/donate/*.png` 相对路径自动生效。
+After replacing the file, no README path changes are needed — both [`README.md`](../../README.md) and [`README.zh-CN.md`](../../README.zh-CN.md) load `docs/images/donate/wechat.png`.
 
-## 隐私提示
+## Privacy
 
-如果你 fork 项目并复用赞赏区，请**只提交你自己的收款码**——切勿把他人的收款码放入公开仓库；相应的赞助收入归上传者所有，与本项目上游作者无关。
+If you fork this project and keep a tip section, **only commit your own QR code** — never upload someone else’s payment QR to a public repo. Tips go to whoever uploaded the code, not necessarily the upstream author.

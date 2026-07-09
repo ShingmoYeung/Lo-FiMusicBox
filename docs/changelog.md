@@ -2,8 +2,6 @@
 
 记录 Lo-Fi Music Box 从立项到当前版本的关键决策与里程碑，便于后续维护理解"为什么这么写"。
 
-对外营销与 GitHub Release 版本号统一为 **v1.0.0**（开源首发）。下文按主题归档演进过程，不再单独使用「已发布 v1.0.1」式标题，避免与开源首发版本号冲突。
-
 ## v1.0.0（开源稳定版）
 
 定位：提供轻量原生的 macOS 音乐盒体验，并在频道管理、可用性检测、视觉拟物化、哔哩哔哩原生播放与检查更新上做出明确设计。
@@ -11,8 +9,11 @@
 ### 架构
 
 - 选择 Swift 6 原生 + SwiftUI + AppKit 互操作，放弃 KMP 等跨端方案优先打磨 macOS 体验。
-- 频道维护使用纯本地 JSON（`Bundled / custom / overrides / hidden / health` 五个文件），其他偏好走 `UserDefaults`。
+- 频道维护使用纯本地 JSON（`Bundled / custom / overrides / hidden / favorites / health` 六个文件），其他偏好走 `UserDefaults`。
+- 自定义频道列表逐条解码：未知 `type` 只跳过该条，避免整份 `custom-stations.json` 加载失败。
 - `MenuBarExtra` + `WindowGroup` + `Settings` 三 Scene 结构，`init()` 中手动构造服务对象解决 `ScheduledHealthChecker` 弱引用 `PlaybackCoordinator` 的依赖关系。
+- 菜单栏小组件只允许一扇主窗：`CommandGroup(replacing: .newItem)` 禁用系统 ⌘N 新建；`MainWindowCoordinator` 会藏掉后来的 borderless 副本，关闭走本窗 `hideMainWindow(hostWindow)`。
+- 界面只展示营销版本（如 `1.0.0`）；`CFBundleVersion` 仍写入 Info.plist，供打包/公证区分构建，不拼进关于页文案。
 - 不引入第三方依赖，全部基于系统框架（AVFoundation、Combine、SwiftUI、AppKit）。
 
 ### 视觉与交互
@@ -26,13 +27,12 @@
   - 暂停：0°（垂直立在底座上）；
   - 切换频道："换片"动画 35° → 0°（停顿）→ 35°，带 spring，模拟现实换唱片。
   - 实现上使用 `Task` 管理动画序列与取消，避免快速连点切歌时动画堆叠。
-- **菜单栏图标**：从最初的 `music.note / speaker.slash` 换成 `radio.fill / radio`，与应用图标的复古唱机主题保持一致；播放/暂停态用实心/线性区分。
-- **顶部按钮布局**：左侧自绘 macOS 红绿灯样式 `[关闭][最小化]`（实心彩色圆点 + 同色系暗描边 + 顶部柔光，符号默认隐藏、悬停整组时浮现 ×/−，与系统行为一致），右侧保留 `[频道列表]` 快捷入口，原系统 traffic light 完全隐藏（`isHidden + frame=.zero + alphaValue=0`）。
-- **频道列表**：滑入式 `StationListOverlay`，显示来源/标签/可用性图标，按"可用性 → 名称"排序，可关闭、可跳转到频道管理。
+- **菜单栏图标**：自绘 `MenuBarTurntableIcon`（`NSBezierPath` 唱机剪影），与应用图标主题一致；播放/暂停态用实心/线性区分。
+- **顶部按钮布局**：左侧自绘 macOS 红绿灯样式 `[隐藏到菜单栏][最小化]`（实心彩色圆点 + 同色系暗描边 + 顶部柔光，符号默认隐藏、悬停整组时浮现 ×/−；红灯调用 `hideMainWindow`，不退出应用），右侧保留 `[频道列表]` 快捷入口，原系统 traffic light 完全隐藏（`isHidden + frame=.zero + alphaValue=0`）。
+- **频道列表**：滑入式 `StationListOverlay`，显示来源/标签/可用性图标，按"可用性 → 名称"排序，可关闭；频道管理走设置面板（`⌘,`）。
 - **主界面布局升级（复古"电台控制台"）**：窗口高度 `220 → 248`，给信息区和控制台留呼吸空间。
-  - 唱机与信息区间距 `12 → 18`，中间加一道上下渐隐的黄铜接缝竖线，信息区改为顶部对齐（修正之前标题居中"浮空"）。
-  - 频道名支持最多两行 + `minimumScaleFactor(0.85)`；次级信息精简为"分类 · 协议类型"。
-  - 标签下沉到主界面，用共享的 `FlowLayout`（SwiftUI `Layout` 协议，自动换行）铺成可换行胶囊，超过 `maxInlineTags(5)` 汇总为 `+N`；同时把 `StationManagementView` 里原有的私有 FlowLayout 合并到该共享组件。
+  - 唱机与信息区用 `mediumSpacing` 分隔，信息区顶部对齐；数显屏内频道名 / 副标题 / 标签均为单行 `MarqueeText`（过长横向滚动），避免撑高布局。
+  - `FlowLayout` 仅用于频道管理编辑页的自定义标签编辑，不在主界面信息区铺胶囊。
   - 音量与传输控件合并为底部一块暗木"控制台"面板：上排黄铜调谐音量滑杆（米色刻度轨 + 黄铜旋钮，自绘取代系统 Slider），下排专注分钟胶囊 + 上一首/播放主键/下一首。播放主键为实心黄铜大圆钮、两侧为内凹金属圆钮，整体与唱机木质/黄铜质感统一（新增 `ConsoleControls.swift`）。
   - 因 `.offset` 不计入 SwiftUI 布局尺寸，唱机桌面投影自然掩于控制台面板之后，呈"唱机坐在控制台上"的观感；248 高度下各区域严丝合缝不裁切。
 - **一体化木质机身（消除"两块木头"割裂感）**：上一版把唱机木箱和底部木质控制台做成了两个独立盒子，浮在深靛蓝玻璃背景上，材质割裂且与主题不协调。本版改为整机一体（对齐应用图标的实物语言）：
@@ -81,9 +81,8 @@
 
 ### 应用图标流水线
 
-- 用 Pillow 实现“保留原图 alpha 柔边 + 整图等比缩放 + 暖米色 macOS squircle 背景 + iconset PNG 无损压缩”的端到端脚本（`scripts/build-app-icon.sh`），见 [`docs/icon-pipeline.md`](icon-pipeline.md)。
-- 关键决策：不再裁剪或二值化原图边缘，避免图标主体出现硬边/锯齿；自己画完整 squircle 背景，避免 macOS 自动叠加灰色容器。
-- 当前打包流程已改为直接使用 `assets/AppIcon.icns` 中的定稿图标，`build-app-icon.sh` 只保留为图标文件校验入口。
+- 早期曾用 Pillow 做「原图 alpha 柔边 + 等比缩放 + squircle 背景 + iconset」生成；现已废弃该生成路径。
+- 当前约定：定稿图标直接放在 `assets/AppIcon.icns`；`scripts/build-app-icon.sh` 与打包脚本只做存在性/非空校验，见 [`docs/icon-pipeline.md`](icon-pipeline.md)。
 
 ### 打包与清理
 
