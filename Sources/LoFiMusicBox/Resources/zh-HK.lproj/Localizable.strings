@@ -54,6 +54,7 @@
 "update.interval.weekly" = "每週";
 "update.interval.monthly" = "每月";
 "update.interval.help" = "按距上次檢查的時間間隔再次檢查，不是固定鐘點。應用程式未運行時會在下次啟動後補查。有新版本時再通知。";
+"update.interval.help_hint" = "查看說明";
 "update.interval.help_accessibility" = "檢查間隔說明";
 "update.action.checking" = "正在檢查…";
 "update.action.open_releases" = "打開 Releases";

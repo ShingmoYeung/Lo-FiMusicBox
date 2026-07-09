@@ -145,8 +145,8 @@ private struct AboutSettingsView: View {
     @EnvironmentObject private var appSettings: AppSettingsStore
     @State private var isShowingIntervalHelp = false
 
-    /// 两个操作按钮共用最小宽度，避免文案长短导致一宽一窄。
-    private let updateActionButtonMinWidth: CGFloat = 136
+    /// 两个操作按钮固定同宽，避免文案长短导致一宽一窄。
+    private let updateActionButtonWidth: CGFloat = 140
 
     var body: some View {
         Form {
@@ -192,6 +192,7 @@ private struct AboutSettingsView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Text(LocalizedStrings.text("update.interval.picker"))
+                            // 说明只走点击 popover；悬停仅短提示，避免系统 tooltip 截断长文案。
                             Button {
                                 isShowingIntervalHelp.toggle()
                             } label: {
@@ -200,12 +201,15 @@ private struct AboutSettingsView: View {
                                     .imageScale(.medium)
                             }
                             .buttonStyle(.plain)
-                            .help(LocalizedStrings.text("update.interval.help"))
+                            .help(LocalizedStrings.text("update.interval.help_hint"))
                             .popover(isPresented: $isShowingIntervalHelp, arrowEdge: .bottom) {
                                 Text(LocalizedStrings.text("update.interval.help"))
                                     .font(.callout)
                                     .foregroundStyle(.primary)
-                                    .frame(maxWidth: 280, alignment: .leading)
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(nil)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(width: 280, alignment: .leading)
                                     .padding(12)
                             }
                             .accessibilityLabel(LocalizedStrings.text("update.interval.help_accessibility"))
@@ -231,20 +235,21 @@ private struct AboutSettingsView: View {
                             await updateCheckCoordinator.checkNowFromUser()
                         }
                     } label: {
-                        if updateCheckCoordinator.isChecking {
-                            HStack(spacing: 6) {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text(LocalizedStrings.text("update.action.checking"))
+                        Group {
+                            if updateCheckCoordinator.isChecking {
+                                HStack(spacing: 6) {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                    Text(LocalizedStrings.text("update.action.checking"))
+                                }
+                            } else {
+                                Label(
+                                    LocalizedStrings.text("app.menu.check_updates"),
+                                    systemImage: "arrow.triangle.2.circlepath"
+                                )
                             }
-                            .frame(minWidth: updateActionButtonMinWidth)
-                        } else {
-                            Label(
-                                LocalizedStrings.text("app.menu.check_updates"),
-                                systemImage: "arrow.triangle.2.circlepath"
-                            )
-                            .frame(minWidth: updateActionButtonMinWidth)
                         }
+                        .frame(width: updateActionButtonWidth)
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
@@ -257,7 +262,7 @@ private struct AboutSettingsView: View {
                             LocalizedStrings.text("update.action.open_releases"),
                             systemImage: "safari"
                         )
-                        .frame(minWidth: updateActionButtonMinWidth)
+                        .frame(width: updateActionButtonWidth)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
