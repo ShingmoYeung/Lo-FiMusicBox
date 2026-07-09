@@ -189,6 +189,7 @@ private struct AboutSettingsView: View {
                             Text(updateIntervalLabel(hours)).tag(hours)
                         }
                     }
+                    .help(LocalizedStrings.text("update.interval.help"))
                 }
 
                 if updateCheckCoordinator.hasDeferredUpdatePrompt {
@@ -203,33 +204,40 @@ private struct AboutSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Button {
-                    Task {
-                        await updateCheckCoordinator.checkNowFromUser()
-                    }
-                } label: {
-                    if updateCheckCoordinator.isChecking {
-                        HStack {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text(LocalizedStrings.text("update.action.checking"))
+                HStack(spacing: 10) {
+                    Button {
+                        Task {
+                            await updateCheckCoordinator.checkNowFromUser()
                         }
-                    } else {
-                        Label(
-                            LocalizedStrings.text("app.menu.check_updates"),
-                            systemImage: "arrow.triangle.2.circlepath"
-                        )
+                    } label: {
+                        if updateCheckCoordinator.isChecking {
+                            HStack(spacing: 6) {
+                                ProgressView()
+                                    .controlSize(.small)
+                                Text(LocalizedStrings.text("update.action.checking"))
+                            }
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            Label(
+                                LocalizedStrings.text("app.menu.check_updates"),
+                                systemImage: "arrow.triangle.2.circlepath"
+                            )
+                            .frame(maxWidth: .infinity)
+                        }
                     }
-                }
-                .disabled(updateCheckCoordinator.isChecking)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(updateCheckCoordinator.isChecking)
 
-                Button {
-                    updateCheckCoordinator.openReleasesPage()
-                } label: {
-                    Label(
-                        LocalizedStrings.text("update.action.open_releases"),
-                        systemImage: "safari"
-                    )
+                    Button {
+                        updateCheckCoordinator.openReleasesPage()
+                    } label: {
+                        Label(
+                            LocalizedStrings.text("update.action.open_releases"),
+                            systemImage: "safari"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
                 }
 
                 if let ignored = appSettings.updateIgnoredVersion {
@@ -255,13 +263,25 @@ private struct AboutSettingsView: View {
     }
 
     private func updateIntervalLabel(_ hours: Int) -> String {
-        if hours >= 168 {
+        switch hours {
+        case 24:
+            return LocalizedStrings.text("update.interval.daily")
+        case 168:
+            return LocalizedStrings.text("update.interval.weekly")
+        case 720:
+            return LocalizedStrings.text("update.interval.monthly")
+        default:
             return LocalizedStrings.text("update.interval.weekly")
         }
-        return LocalizedStrings.text("update.interval.hours", hours)
     }
 
     private var statusSummaryText: String? {
+        if case .updateAvailable(let release)? = updateCheckCoordinator.lastOutcome {
+            return LocalizedStrings.text(
+                "update.status.available",
+                release.marketingVersion
+            )
+        }
         if let last = appSettings.updateLastCheckedAt {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium

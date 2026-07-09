@@ -32,6 +32,11 @@ enum AppConstants {
         static let acceptHeaderName = "Accept"
         static let acceptHeaderValue = "application/vnd.github+json"
         static let userAgentHeaderName = "User-Agent"
+        /// 系统通知：仅后台发现新版本时使用。
+        static let notificationCategoryIdentifier = "lofi-music-box-update-available"
+        static let notificationRequestIdentifierPrefix = "lofi-music-box-update-"
+        static let notificationUserInfoReleaseURLKey = "releaseHTMLURL"
+        static let notificationUserInfoVersionKey = "releaseVersion"
     }
 
     enum Resource {
@@ -98,9 +103,10 @@ enum AppConstants {
         static let defaultHealthCheckOnlyWhenIdle: Bool = true
         static let defaultPlaybackAuraIntensity: PlaybackAuraIntensity = .balanced
         static let defaultUpdateCheckPolicy: UpdateCheckPolicy = .onLaunch
-        /// 定期检查可选间隔（小时）。
-        static let updatePeriodicIntervalHourChoices: [Int] = [24, 168]
-        static let defaultUpdatePeriodicIntervalHours: Int = 24
+        /// 定期检查最短间隔（小时）：每天 / 每周 / 每月（30 天近似）。
+        /// UI 展示为频率文案，不向用户暴露小时数。
+        static let updatePeriodicIntervalHourChoices: [Int] = [24, 168, 720]
+        static let defaultUpdatePeriodicIntervalHours: Int = 168
     }
 
     enum StationTypeInference {

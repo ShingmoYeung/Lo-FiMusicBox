@@ -82,6 +82,7 @@ struct LoFiMusicBoxApp: App {
         MenuBarExtra {
             AppMenuBarContent()
                 .environmentObject(appSettings)
+                .environmentObject(updateCheckCoordinator)
                 .environmentObject(mainWindowCoordinator)
         } label: {
             Label {
@@ -144,6 +145,7 @@ private enum MenuBarTurntableIcon {
 private struct AppMenuBarContent: View {
     @Environment(\.openSettings) private var openSettings
     @EnvironmentObject private var appSettings: AppSettingsStore
+    @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
     @EnvironmentObject private var mainWindowCoordinator: MainWindowCoordinator
 
     var body: some View {
@@ -155,6 +157,15 @@ private struct AppMenuBarContent: View {
         } label: {
             menuItemLabel(LocalizedStrings.text("app.menu.about"))
         }
+
+        Button {
+            Task {
+                await updateCheckCoordinator.checkNowFromUser()
+            }
+        } label: {
+            menuItemLabel(LocalizedStrings.text("app.menu.check_updates"))
+        }
+        .disabled(updateCheckCoordinator.isChecking)
 
         Button {
             mainWindowCoordinator.prepareForUserFacingWindow()

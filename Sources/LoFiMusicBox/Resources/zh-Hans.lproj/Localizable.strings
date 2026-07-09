@@ -50,8 +50,10 @@
 "update.policy.on_launch" = "启动后检查";
 "update.policy.periodic" = "定期检查并通知";
 "update.interval.picker" = "检查间隔";
-"update.interval.hours" = "%d 小时";
-"update.interval.weekly" = "每 7 天";
+"update.interval.daily" = "每天";
+"update.interval.weekly" = "每周";
+"update.interval.monthly" = "每月";
+"update.interval.help" = "按距上次检查的时间间隔再次检查，不是固定钟点。应用未运行时会在下次启动后补查。有新版本时再通知。";
 "update.action.checking" = "正在检查…";
 "update.action.open_releases" = "打开 Releases";
 "update.action.open_download" = "打开下载页";
@@ -68,7 +70,10 @@
 "update.alert.network.message" = "%@\n\n更新信息来自 GitHub。若你在中国大陆或当前网络无法稳定访问 GitHub，可检查网络、使用代理后重试，或在浏览器中打开 Releases 页面。";
 "update.alert.ignored.title" = "该版本已被忽略";
 "update.alert.ignored.message" = "你已选择忽略版本 %@。仍可打开 Releases 查看，或取消忽略后再次检查。";
+"update.notification.available.title" = "发现新版本";
+"update.notification.available.body" = "GitHub 上有 %@（当前 %@）。点击打开下载页。";
 "update.status.deferred_while_playing" = "检测到新版本；为避免打断收听，已暂缓提示。暂停播放后会再提醒，也可点下方按钮立即查看。";
+"update.status.available" = "发现新版本 %@，可打开 Releases 下载。";
 "update.status.last_checked" = "上次检查：%@";
 "update.status.last_failed" = "上次检查失败（%@）：%@";
 "update.status.failed" = "检查失败：%@";

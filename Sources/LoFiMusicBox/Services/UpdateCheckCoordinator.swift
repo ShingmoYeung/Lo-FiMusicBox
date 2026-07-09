@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import UserNotifications
 
 /// 检查更新的 UI 协调层：手动检查、按策略静默检查、播放中延迟提示、稍后提醒 / 忽略版本。
 @MainActor
@@ -75,13 +76,19 @@ final class UpdateCheckCoordinator: ObservableObject {
         await performCheck(triggeredByUser: true)
     }
 
-    /// 播放暂停后，若有暂缓的更新提示则补弹一次。
+    /// 播放暂停后，若有暂缓的更新提示则补发系统通知（后台路径）或弹窗。
     func presentDeferredPromptIfNeeded() {
         guard let release = deferredRelease else { return }
         guard playback?.isPlaying != true else { return }
         deferredRelease = nil
         hasDeferredUpdatePrompt = false
-        presentUpdateAvailableAlert(for: release, allowDeferBecausePlaying: false)
+        Task {
+            await presentUpdateAvailable(
+                for: release,
+                triggeredByUser: false,
+                allowDeferBecausePlaying: false
+            )
+        }
     }
 
     func openReleasesPage() {
@@ -110,6 +117,10 @@ final class UpdateCheckCoordinator: ObservableObject {
         isChecking = true
         defer { isChecking = false }
 
+        if !triggeredByUser {
+            UpdateNotificationService.shared.prepareIfNeeded()
+        }
+
         let outcome = await service.checkLatestRelease()
         settings.updateUpdateLastCheckedAt(Date())
         lastOutcome = outcome
@@ -127,8 +138,9 @@ final class UpdateCheckCoordinator: ObservableObject {
                 }
                 return
             }
-            presentUpdateAvailableAlert(
+            await presentUpdateAvailable(
                 for: release,
+                triggeredByUser: triggeredByUser,
                 allowDeferBecausePlaying: !triggeredByUser
             )
         case .failed(let message):
@@ -186,16 +198,29 @@ final class UpdateCheckCoordinator: ObservableObject {
         }
     }
 
-    private func presentUpdateAvailableAlert(
+    /// 手动检查：模态 Alert；后台检查：系统通知（播放中则暂缓）。
+    /// 若通知权限被拒，则在非播放时回退为一次 Alert，避免用户完全收不到提醒。
+    private func presentUpdateAvailable(
         for release: GitHubLatestRelease,
+        triggeredByUser: Bool,
         allowDeferBecausePlaying: Bool
-    ) {
+    ) async {
         if allowDeferBecausePlaying, playback?.isPlaying == true {
             deferredRelease = release
             hasDeferredUpdatePrompt = true
             return
         }
 
+        if triggeredByUser {
+            presentUpdateAvailableAlert(for: release)
+            return
+        }
+
+        await UpdateNotificationService.shared.postUpdateAvailable(release: release)
+        // 通知权限被拒时不抢焦点弹窗；关于页通过 lastOutcome=.updateAvailable 展示状态。
+    }
+
+    private func presentUpdateAvailableAlert(for release: GitHubLatestRelease) {
         let notes = truncatedReleaseNotes(release.body)
         let info: String
         if notes.isEmpty {

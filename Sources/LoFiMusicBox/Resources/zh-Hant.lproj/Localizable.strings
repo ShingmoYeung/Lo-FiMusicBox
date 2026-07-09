@@ -50,8 +50,10 @@
 "update.policy.on_launch" = "啟動後檢查";
 "update.policy.periodic" = "定期檢查並通知";
 "update.interval.picker" = "檢查間隔";
-"update.interval.hours" = "%d 小時";
-"update.interval.weekly" = "每 7 天";
+"update.interval.daily" = "每天";
+"update.interval.weekly" = "每週";
+"update.interval.monthly" = "每月";
+"update.interval.help" = "按距上次檢查的時間間隔再次檢查，不是固定鐘點。應用程式未執行時會在下次啟動後補查。有新版本時再通知。";
 "update.action.checking" = "正在檢查…";
 "update.action.open_releases" = "開啟 Releases";
 "update.action.open_download" = "開啟下載頁";
@@ -68,7 +70,10 @@
 "update.alert.network.message" = "%@\n\n更新資訊來自 GitHub。若你在中國大陸或目前網路無法穩定存取 GitHub，可檢查網路、使用代理後重試，或在瀏覽器中開啟 Releases 頁面。";
 "update.alert.ignored.title" = "此版本已被忽略";
 "update.alert.ignored.message" = "你已選擇忽略版本 %@。仍可開啟 Releases 查看，或取消忽略後再次檢查。";
+"update.notification.available.title" = "發現新版本";
+"update.notification.available.body" = "GitHub 上有 %@（目前 %@）。點一下開啟下載頁。";
 "update.status.deferred_while_playing" = "偵測到新版本；為避免打斷收聽，已暫緩提示。暫停播放後會再提醒，也可點下方按鈕立即查看。";
+"update.status.available" = "發現新版本 %@，可開啟 Releases 下載。";
 "update.status.last_checked" = "上次檢查：%@";
 "update.status.last_failed" = "上次檢查失敗（%@）：%@";
 "update.status.failed" = "檢查失敗：%@";
