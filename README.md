@@ -79,6 +79,8 @@ Lo-Fi Music Box 目前采用 **ad-hoc 签名**（`codesign -`），未经 Apple 
 git clone https://github.com/ShingmoYeung/Lo-FiMusicBox.git
 cd Lo-FiMusicBox
 
+./scripts/clean-build-artifacts.sh
+
 swift run
 
 ./scripts/package-macos-app.sh
@@ -88,12 +90,20 @@ swift run
 打包脚本会：
 
 1. 校验 `assets/AppIcon.icns` 存在且非空（应用图标已预置，不再由脚本生成）；
-2. 清理 `.build/` 与 `dist/`，避免上次的中间产物被复用；
+2. 调用 `./scripts/clean-build-artifacts.sh` 清理 `.build/` 与 `dist/`，避免上次的中间产物被复用；
 3. `swift build -c release --arch arm64 --arch x86_64` 产出 Universal 2 release 二进制；
 4. 组装 `.app` bundle（含 `Info.plist` 与 `CFBundleIconFile=AppIcon`），拷贝 `assets/AppIcon.icns`；
 5. `codesign --force --deep --sign -` 做 ad-hoc 签名，方便本机分发；
 6. `ditto` 生成 zip；
 7. `hdiutil create` 生成"拖入 Applications"式 UDZO 压缩 dmg：DMG 内同时包含 `.app` 和一个指向系统 `/Applications` 的软链接，双击 dmg 后把 App 拖到 Applications 图标上即可完成安装。
+
+如果你只想单独清理仓库里的构建产物，也可以直接运行：
+
+```bash
+./scripts/clean-build-artifacts.sh
+./scripts/clean-build-artifacts.sh --build-only
+./scripts/clean-build-artifacts.sh --dist-only
+```
 
 打包脚本**不会**替你去改 `/Applications` 里已有的 App，安装步骤留给你在 DMG 里手动完成，符合 macOS 用户对开源应用分发的通用预期。
 

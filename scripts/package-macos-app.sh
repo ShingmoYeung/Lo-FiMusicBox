@@ -44,6 +44,7 @@ for arg in "$@"; do
 done
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CLEAN_SCRIPT="${PROJECT_ROOT}/scripts/clean-build-artifacts.sh"
 APP_DISPLAY_NAME="Lo-Fi Music Box"
 EXECUTABLE_NAME="LoFiMusicBox"
 BUNDLE_IDENTIFIER="app.lofimusicbox.desktop"
@@ -68,20 +69,6 @@ DMG_PATH="${DIST_DIRECTORY}/LoFiMusicBox-macOS.dmg"
 APP_ICON_SOURCE="${PROJECT_ROOT}/assets/AppIcon.icns"
 APP_ICON_BUNDLE_NAME="AppIcon.icns"
 APP_ICON_KEY_NAME="AppIcon"
-
-clean_project_path() {
-    local path="$1"
-    case "${path}" in
-        "${PROJECT_ROOT}/.build"|\
-        "${PROJECT_ROOT}/dist")
-            rm -rf "${path}"
-            ;;
-        *)
-            echo "错误：拒绝清理非预期路径：${path}" >&2
-            exit 1
-            ;;
-    esac
-}
 
 validate_app_icon() {
     local icon_path="$1"
@@ -113,8 +100,7 @@ fi
 validate_app_icon "${APP_ICON_SOURCE}"
 
 echo "清理旧构建中间产物和打包产物..."
-clean_project_path "${BUILD_DIRECTORY}"
-clean_project_path "${DIST_DIRECTORY}"
+bash "${CLEAN_SCRIPT}"
 
 echo "开始构建 Universal 2 release 版本（${BUILD_ARCHS[*]}）..."
 cd "${PROJECT_ROOT}"
