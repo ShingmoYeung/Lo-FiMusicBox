@@ -54,6 +54,7 @@
 "update.interval.weekly" = "Weekly";
 "update.interval.monthly" = "Monthly";
 "update.interval.help" = "Checks again after this much time has passed since the last check—not at a fixed clock time. If the app was not running, it will catch up after the next launch. You are notified only when a newer version is found.";
+"update.interval.help_accessibility" = "Check interval help";
 "update.action.checking" = "Checking…";
 "update.action.open_releases" = "Open Releases";
 "update.action.open_download" = "Open Download Page";

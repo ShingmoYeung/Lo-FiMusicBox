@@ -143,6 +143,10 @@ private struct GeneralSettingsView: View {
 private struct AboutSettingsView: View {
     @EnvironmentObject private var updateCheckCoordinator: UpdateCheckCoordinator
     @EnvironmentObject private var appSettings: AppSettingsStore
+    @State private var isShowingIntervalHelp = false
+
+    /// 两个操作按钮共用最小宽度，避免文案长短导致一宽一窄。
+    private let updateActionButtonMinWidth: CGFloat = 136
 
     var body: some View {
         Form {
@@ -175,21 +179,38 @@ private struct AboutSettingsView: View {
                 }
 
                 if appSettings.updateCheckPolicy == .periodic {
-                    Picker(
-                        LocalizedStrings.text("update.interval.picker"),
-                        selection: Binding(
-                            get: { appSettings.updatePeriodicIntervalHours },
-                            set: { hours in
-                                appSettings.updateUpdatePeriodicIntervalHours(hours)
-                                updateCheckCoordinator.reschedule()
-                            }
-                        )
-                    ) {
+                    Picker(selection: Binding(
+                        get: { appSettings.updatePeriodicIntervalHours },
+                        set: { hours in
+                            appSettings.updateUpdatePeriodicIntervalHours(hours)
+                            updateCheckCoordinator.reschedule()
+                        }
+                    )) {
                         ForEach(AppConstants.Settings.updatePeriodicIntervalHourChoices, id: \.self) { hours in
                             Text(updateIntervalLabel(hours)).tag(hours)
                         }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(LocalizedStrings.text("update.interval.picker"))
+                            Button {
+                                isShowingIntervalHelp.toggle()
+                            } label: {
+                                Image(systemName: "info.circle")
+                                    .foregroundStyle(.secondary)
+                                    .imageScale(.medium)
+                            }
+                            .buttonStyle(.plain)
+                            .help(LocalizedStrings.text("update.interval.help"))
+                            .popover(isPresented: $isShowingIntervalHelp, arrowEdge: .bottom) {
+                                Text(LocalizedStrings.text("update.interval.help"))
+                                    .font(.callout)
+                                    .foregroundStyle(.primary)
+                                    .frame(maxWidth: 280, alignment: .leading)
+                                    .padding(12)
+                            }
+                            .accessibilityLabel(LocalizedStrings.text("update.interval.help_accessibility"))
+                        }
                     }
-                    .help(LocalizedStrings.text("update.interval.help"))
                 }
 
                 if updateCheckCoordinator.hasDeferredUpdatePrompt {
@@ -216,14 +237,16 @@ private struct AboutSettingsView: View {
                                     .controlSize(.small)
                                 Text(LocalizedStrings.text("update.action.checking"))
                             }
+                            .frame(minWidth: updateActionButtonMinWidth)
                         } else {
                             Label(
                                 LocalizedStrings.text("app.menu.check_updates"),
                                 systemImage: "arrow.triangle.2.circlepath"
                             )
+                            .frame(minWidth: updateActionButtonMinWidth)
                         }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
                     .disabled(updateCheckCoordinator.isChecking)
 
@@ -234,6 +257,7 @@ private struct AboutSettingsView: View {
                             LocalizedStrings.text("update.action.open_releases"),
                             systemImage: "safari"
                         )
+                        .frame(minWidth: updateActionButtonMinWidth)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
