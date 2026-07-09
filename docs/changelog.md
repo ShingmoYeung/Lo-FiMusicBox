@@ -2,9 +2,11 @@
 
 记录 Lo-Fi Music Box 从立项到当前版本的关键决策与里程碑，便于后续维护理解"为什么这么写"。
 
-## v1.0.0（首个稳定版）
+对外营销与 GitHub Release 版本号统一为 **v1.0.0**（开源首发）。下文按主题归档演进过程，不再单独使用「已发布 v1.0.1」式标题，避免与开源首发版本号冲突。
 
-定位：提供轻量原生的 macOS 音乐盒体验，并在频道管理、可用性检测、视觉拟物化上做出明确设计。
+## v1.0.0（开源稳定版）
+
+定位：提供轻量原生的 macOS 音乐盒体验，并在频道管理、可用性检测、视觉拟物化、哔哩哔哩原生播放与检查更新上做出明确设计。
 
 ### 架构
 
@@ -40,42 +42,6 @@
   - 顶面与前面板之间用一道蚀刻接缝（`consoleSeam`：暗线 + 木色高光线）过渡；音量/专注/传输控件直接坐落在同一块机身前面板上，不再是独立盒子。
   - 移除了上一版的独立木质 deck 背景和竖向黄铜分隔线，视觉语言统一到一体化木质机身。
 
-### 频道管理与健康检测
-
-- 频道增删改的核心是"内置覆盖只保存差异"——`StationRepository` 在合并时把 `BundledStations.json` 与 `bundled-overrides.json` 字段级合并，未修改的字段始终跟随上游内置数据更新。
-- 隐藏的内置频道存 ID 列表，恢复时从隐藏列表移除即可。
-- `StationHealthService`：MP3/HLS 用 HEAD 探针 + Range 兜底；M3U8 用 GET 看 manifest 是否包含 `#EXTM3U`；Bilibili 走与播放一致的解析探测（见 v1.0.1）。
-- `ScheduledHealthChecker`：`Timer` 驱动的周期性检测，频率 `5 / 10 / 30 / 60` 分钟，可选"仅播放空闲时检测"避免占用网络。
-
-### 应用图标流水线
-
-- 用 Pillow 实现“保留原图 alpha 柔边 + 整图等比缩放 + 暖米色 macOS squircle 背景 + iconset PNG 无损压缩”的端到端脚本（`scripts/build-app-icon.sh`），见 [`docs/icon-pipeline.md`](icon-pipeline.md)。
-- 关键决策：不再裁剪或二值化原图边缘，避免图标主体出现硬边/锯齿；自己画完整 squircle 背景，避免 macOS 自动叠加灰色容器。
-- 当前打包流程已改为直接使用 `assets/AppIcon.icns` 中的定稿图标，`build-app-icon.sh` 只保留为图标文件校验入口。
-
-### 打包
-
-- `scripts/package-macos-app.sh`：Universal 2 `swift build -c release --arch arm64 --arch x86_64` → 组装 `.app` → ad-hoc `codesign` → `ditto` zip + `hdiutil create` UDZO dmg。
-- 打包前会清理 `.build/` 和 `dist/`，并要求 `assets/AppIcon.icns` 已存在且非空；脚本不会自动生成或覆盖图标。
-- 当前为 ad-hoc 签名，仅适合本机/内部分发。正式公开分发需切换 Developer ID 签名 + notarization。
-
-## v1.0.1（哔哩哔哩直播原生播放 + 交互精修）
-
-### 哔哩哔哩直播：从离屏 WebView 改为原生解析 HLS
-
-- **问题根因**：B 站直播是网页里 flv.js(MSE) 播的 HTTP-FLV 流，而 native 版用离屏 `WKWebView(frame:.zero)`（从未加入视图层级）跑它——WebKit 离屏不启动媒体管线、且对 flv.js 兼容差，导致"能加载页面但没声音"。旧健康检测又只对页面发 GET 看 200，造成"检测正常却播不了"的假阳性。
-- **方案（B+D）**：新增 `BilibiliStreamResolver`，用官方网页接口把直播间解析成 HLS 直链，交给 `AVPlayer` 原生播放，彻底移除 WebView。
-  - 链路：`room_init`（入口号 → 真实 `room_id` + `live_status`）→ `getRoomPlayInfo(protocol=0,1&format=0,1,2&codec=0,1)` → 在 `http_hls` 里优先 `fmp4+avc`、回退 `ts+avc`、再回退任意 HLS → 拼 `host+base_url+extra`。
-  - 实测确认：上述接口与解析出的 m3u8、init/媒体分片均无需登录 / cookie / wbi 签名 / Referer 即可获取；并用独立 Swift 脚本验证 `Decodable`(`convertFromSnakeCase`) 解析链路在运行期正确。
-- **播放整合**：`PlaybackCoordinator` 对 `bilibili` 类型先解析再用 `AVStationPlayer.load(url:)` 播放，与 m3u8/mp3 共用同一播放器；加 `loadTask` 串行化，连续切台时取消上一个解析，避免旧台结果回灌。
-- **健康检测升级（消除假阳性）**：`checkBilibili` 走与播放完全相同的解析链路——能解析出 HLS 才算"可用"；主播未开播明确标记"不可用 · 未开播"，其他解析失败也判不可用。
-- **自动重连**：`AVStationPlayer` 增加播放进度看门狗 + 失败通知监听——直播流 `expires` 过期断流、网络停滞或播放失败时，回调 `PlaybackCoordinator` 重新走 `play`（B 站重新解析出新 HLS 直链，普通流重新拉起），带最小重连间隔防抖、仅在播放态触发。
-- **显示与配置**：数显屏右上角不再显示平台名，改为简短"流类型徽标"（B 站直播标 `LIVE`，mp3/m3u8 标 `MP3`/`HLS`）；状态行新增最近一次健康检测的响应时延（ms）。频道管理"基础信息"补充三类音源说明（含哔哩哔哩直播间地址示例）。
-- **动态频谱**：数显屏背景新增动态频谱可视化层（`SpectrumVisualizerBackground`，Canvas + TimelineView 绘制）。按频道风格（名称/分类/标签关键字推断 `energy`/`tempo`）模拟律动，中频段更活跃；播放时律动、暂停时经淡出包络平滑落回基线。为保证文字清晰，频谱条透明度下调并叠加顶部渐隐遮罩（只在屏底律动）；各条采用随机化的频率/相位组合，彼此不同步，律动更自然不规律。当前为风格化模拟（远程流 + AVPlayer 暂未接入实时 FFT）。
-- **换盘面**：新增唱片盘面主题 `VinylFace`（6 款配色 + 印字：MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD），通过造型独特的"迷你黑胶"按钮 `VinylFaceSwapButton` 循环切换。中央贴标随主题换色换字，切换时复用"抬针—换片—落针"动画，选择以 `@AppStorage` 持久化。纯视觉 / 情绪化功能，不影响播放。
-- **直播流自动重连与平滑恢复**：`AVStationPlayer` 用“进度看门狗 + 失败通知”检测直播流过期 / 停滞 / 失败并回调 `PlaybackCoordinator` 重连；复用同一个 `AVPlayer`（`replaceCurrentItem`）换流、不再重建播放器（避免音频管线重置的爆音与延迟）；重连走无感路径（不切 `.loading`、显示屏不闪、不触发换片动画）；新流真正进入 `playing`（开始出声）后才以 0.6s 把音量从 0 淡入到目标（缓冲期间保持静音），把“卡顿→突兀全音量”变成平滑渐入；用 `targetVolume` 修掉重连后音量被重置的问题；开启 `automaticallyWaitsToMinimizeStalling` 并把停滞阈值调大到 16s 减少误重连，重连失败保持 `.playing` 交看门狗下周期重试。
-- **已知限制**：B 站接口若改版（字段/签名要求变化）需同步更新解析逻辑。
-
 ### 唱机与控制台交互精修
 
 - 唱盘改为俯视后倾透视以增强体量感；为避免透视把偏右的唱针斜掉，后倾只作用于唱盘组、唱针留在未倾斜图层，保证暂停时绝对竖直。
@@ -83,6 +49,48 @@
 - 右侧信息屏改为暖色"琥珀数显"风格（深棕黑底 + 扫描线 + 琥珀发光等宽字 + 黄铜框 + `ON AIR/PAUSED` 状态行），与木质机身同属暖色、消除蓝屏割裂。
 - 音量滑杆新增 `mouseDownCanMoveWindow=false` 的 AppKit 交互层（`SliderScrubLayer`），修复 `isMovableByWindowBackground` 把拖动当成"拖窗口"导致"音量只能点不能拖"的问题；音量右侧数字读数改为一键静音键（`MuteToggleButton`，⌘M）。
 - 底部新增随机频道键（`shuffle`，⌘R，仅在检测可用的频道里随机、排除当前台、带回退）；专注计时胶囊改为可点击重置（番茄钟式重复计时）。
+- 数显屏右上角改为简短"流类型徽标"（B 站直播标 `LIVE`，mp3/m3u8 标 `MP3`/`HLS`）；状态行新增最近一次健康检测的响应时延（ms）。
+- **动态频谱**：数显屏背景新增动态频谱可视化层（`SpectrumVisualizerBackground`，Canvas + TimelineView 绘制）。按频道风格（名称/分类/标签关键字推断 `energy`/`tempo`）模拟律动；播放时律动、暂停时经淡出包络平滑落回基线。当前为风格化模拟（远程流 + AVPlayer 暂未接入实时 FFT）。
+- **换盘面**：新增唱片盘面主题 `VinylFace`（6 款配色 + 印字：MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD），通过造型独特的"迷你黑胶"按钮 `VinylFaceSwapButton` 循环切换；选择以 `@AppStorage` 持久化。
+
+### 频道管理与健康检测
+
+- 频道增删改的核心是"内置覆盖只保存差异"——`StationRepository` 在合并时把 `BundledStations.json` 与 `bundled-overrides.json` 字段级合并，未修改的字段始终跟随上游内置数据更新。
+- 隐藏的内置频道存 ID 列表，恢复时从隐藏列表移除即可。
+- `StationHealthService`：MP3/HLS 用 HEAD 探针 + Range 兜底；M3U8 用 GET 看 manifest 是否包含 `#EXTM3U`；Bilibili 走与播放一致的解析探测。
+- `ScheduledHealthChecker`：`Timer` 驱动的周期性检测，频率 `5 / 10 / 30 / 60` 分钟，可选"仅播放空闲时检测"避免占用网络。
+
+### 哔哩哔哩直播：原生解析 HLS
+
+- **问题根因**：B 站直播是网页里 flv.js(MSE) 播的 HTTP-FLV 流，而早期 native 版用离屏 `WKWebView` 跑它——WebKit 离屏不启动媒体管线、且对 flv.js 兼容差，导致"能加载页面但没声音"。旧健康检测又只对页面发 GET 看 200，造成"检测正常却播不了"的假阳性。
+- **方案**：新增 `BilibiliStreamResolver`，用官方网页接口把直播间解析成 HLS 直链，交给 `AVPlayer` 原生播放，彻底移除 WebView。
+  - 链路：`room_init`（入口号 → 真实 `room_id` + `live_status`）→ `getRoomPlayInfo` → 在 `http_hls` 里优先 `fmp4+avc`、回退 `ts+avc`、再回退任意 HLS。
+  - 实测确认：上述接口与解析出的 m3u8、init/媒体分片均无需登录 / cookie / wbi 签名 / Referer 即可获取。
+- **播放整合**：`PlaybackCoordinator` 对 `bilibili` 类型先解析再用 `AVStationPlayer.load(url:)` 播放，与 m3u8/mp3 共用同一播放器；加 `loadTask` 串行化，连续切台时取消上一个解析。
+- **健康检测**：`checkBilibili` 走与播放完全相同的解析链路——能解析出 HLS 才算"可用"；主播未开播明确标记"不可用 · 未开播"。
+- **自动重连与平滑恢复**：`AVStationPlayer` 用进度看门狗 + 失败通知检测直播流过期 / 停滞 / 失败并回调重连；复用同一个 `AVPlayer`（`replaceCurrentItem`）换流；重连走无感路径；新流真正进入 `playing` 后音量淡入；开启 `automaticallyWaitsToMinimizeStalling`。
+- **已知限制**：B 站接口若改版（字段/签名要求变化）需同步更新解析逻辑。
+
+### 检查更新（GitHub Releases）
+
+- 仅查询 GitHub Releases `latest` API（`api.github.com/.../releases/latest`），解析 `tag_name` 与当前 `CFBundleShortVersionString` 比较；不提供应用内自动安装。
+- 策略：关闭 / 启动时检查 / 周期性（日 / 周 / 月，默认每周）；后台发现新版本时用 `UserNotifications` 通知，手动检查用 `NSAlert`。
+- 播放中不打断：有更新提示时延后到空闲再展示。
+- 网络失败给出诚实自助文案（代理 / 重试 / 打开 Releases 页），不假装已检查成功。
+- 全部更新相关 UI 收在 **设置 → 关于**；菜单栏保留系统「关于」同级的「检查更新」入口。
+
+### 应用图标流水线
+
+- 用 Pillow 实现“保留原图 alpha 柔边 + 整图等比缩放 + 暖米色 macOS squircle 背景 + iconset PNG 无损压缩”的端到端脚本（`scripts/build-app-icon.sh`），见 [`docs/icon-pipeline.md`](icon-pipeline.md)。
+- 关键决策：不再裁剪或二值化原图边缘，避免图标主体出现硬边/锯齿；自己画完整 squircle 背景，避免 macOS 自动叠加灰色容器。
+- 当前打包流程已改为直接使用 `assets/AppIcon.icns` 中的定稿图标，`build-app-icon.sh` 只保留为图标文件校验入口。
+
+### 打包与清理
+
+- `scripts/package-macos-app.sh`：Universal 2 `swift build -c release --arch arm64 --arch x86_64` → 组装 `.app` → ad-hoc `codesign` → `ditto` zip + `hdiutil create` UDZO dmg。
+- 打包前通过 `scripts/clean-build-artifacts.sh` 清理 `.build/` 和 `dist/`，并要求 `assets/AppIcon.icns` 已存在且非空；脚本不会自动生成或覆盖图标。
+- 清理脚本也可单独使用：`--build-only` / `--dist-only` / `--help`。
+- 当前为 ad-hoc 签名，仅适合本机/内部分发。正式公开分发需切换 Developer ID 签名 + notarization。
 
 ## 后续可能的版本方向
 

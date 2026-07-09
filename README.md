@@ -1,5 +1,7 @@
 # Lo-Fi Music Box
 
+> [English](README.en.md) · 中文
+
 <p align="center">
   <img src="docs/images/lo-fi-music-box-icon.png" alt="Lo-Fi Music Box" width="180" />
 </p>
@@ -50,6 +52,7 @@ Lo-Fi Music Box 是一个 SwiftUI + AppKit 编写的 macOS 小组件，围绕"�
 - **专注时长统计**：每分钟 tick 累计今日/历史专注分钟数，菜单栏直接显示当日时长，保留近 90 天历史；胶囊可点击重置，做番茄式计时。
 - **换盘面主题**：内置 6 款黑胶盘面 + 印字（`MUSIC / NIGHT / RUBY / FERN / ROSÉ / GOLD`），复用"抬针—换片—落针"动画切换。
 - **多语言**：内置简体中文 / 繁体中文（台湾） / 繁体中文（香港） / English 四种界面语言，实时切换。
+- **检查更新**：从 GitHub Releases 查询最新版本；可在设置 → 关于中配置策略，菜单栏也可手动检查。发现新版本会通知或弹窗引导打开 Releases，不提供应用内自动安装。
 
 ## 📸 截图
 
@@ -144,7 +147,8 @@ swift run
 ```
 LoFiMusicBox/
 ├── Package.swift
-├── README.md
+├── README.md                     # 中文主文档
+├── README.en.md                  # English README
 ├── CHANGELOG.md
 ├── LICENSE
 ├── docs/
@@ -153,6 +157,7 @@ LoFiMusicBox/
 │   └── images/                   # 图标 / 截图 / 打赏二维码
 ├── scripts/
 │   ├── build-app-icon.sh         # 校验 assets/AppIcon.icns 是否就绪
+│   ├── clean-build-artifacts.sh  # 清理 .build/ 与 dist/
 │   └── package-macos-app.sh      # Universal 2 打包 + 可选 --no-dmg
 ├── assets/                       # 定稿的 AppIcon.icns（不进 SwiftPM 资源包）
 ├── dist/                         # 打包产物（脚本会清空重建）
