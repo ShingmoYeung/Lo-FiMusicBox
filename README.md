@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="#-download--install"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-c48a5b?style=flat-square"></a>
+  <a href="#-download--install"><img alt="Version" src="https://img.shields.io/badge/version-1.0.1-c48a5b?style=flat-square"></a>
   <a href="#-license"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
   <a href="#"><img alt="macOS" src="https://img.shields.io/badge/macOS-14%2B-lightgrey.svg?style=flat-square"></a>
   <a href="#"><img alt="Swift" src="https://img.shields.io/badge/Swift-6-orange.svg?style=flat-square"></a>
@@ -181,7 +181,7 @@ LoFiMusicBox/
 - Prefer meaningful names over opaque abbreviations.
 - Keep magic values out of business code — add constants in `Support/AppConstants.swift`.
 - Non-obvious logic gets comments explaining *why* (e.g. `canBecomeKeyWindow` swizzle, reusing one `AVPlayer` via `replaceCurrentItem`). Code comments are Chinese-first; user docs default to English (this file), with Chinese in [`README.zh-CN.md`](README.zh-CN.md).
-- Milestone archive: [`docs/changelog.md`](docs/changelog.md). User-facing notes: [`CHANGELOG.md`](CHANGELOG.md). Release tag: `v1.0.0`.
+- Milestone archive: [`docs/changelog.md`](docs/changelog.md). User-facing notes: [`CHANGELOG.md`](CHANGELOG.md). Release tag: `v1.0.1`.
 - This project was built with assistance from [Cursor](https://cursor.com/).
 
 ## 🛣 Roadmap

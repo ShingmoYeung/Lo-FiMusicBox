@@ -48,8 +48,8 @@ CLEAN_SCRIPT="${PROJECT_ROOT}/scripts/clean-build-artifacts.sh"
 APP_DISPLAY_NAME="Lo-Fi Music Box"
 EXECUTABLE_NAME="LoFiMusicBox"
 BUNDLE_IDENTIFIER="app.lofimusicbox.desktop"
-APP_VERSION="1.0.0"
-BUILD_VERSION="1"
+APP_VERSION="1.0.1"
+BUILD_VERSION="2"
 BUILD_ARCHS=("arm64" "x86_64")
 SWIFT_BUILD_ARGS=(-c release)
 for arch in "${BUILD_ARCHS[@]}"; do

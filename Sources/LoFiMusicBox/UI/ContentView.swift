@@ -103,7 +103,7 @@ struct ContentView: View {
     /// 深靛蓝主题不再铺满背景，而是延续在"显示屏"里，机身则成为画面主体实物。
     private var widgetBody: some View {
         ZStack {
-            woodConsoleSurface
+            draggableWoodConsoleSurface
 
             VStack(spacing: AppConstants.UserInterface.smallSpacing) {
                 topBar
@@ -124,6 +124,29 @@ struct ContentView: View {
             .padding(.horizontal, AppConstants.UserInterface.widgetEdgeInset)
             .padding(.top, AppConstants.UserInterface.widgetEdgeInset)
             .padding(.bottom, AppConstants.UserInterface.widgetEdgeInset)
+        }
+    }
+
+    /// macOS 15+ 显式启用窗口拖动手势。
+    ///
+    /// macOS 27 下，borderless + hiddenTitleBar 的 SwiftUI WindowGroup 不再可靠地
+    /// 把 NSWindow.isMovableByWindowBackground 传递到 SwiftUI 内容层。将系统提供的
+    /// WindowDragGesture 绑定在最底层木质机身上，可以让空白机身区域直接移动窗口，
+    /// 同时保留上层播放、音量和频道按钮的命中区域。macOS 14 没有这个 API，继续
+    /// 使用 WindowConfigurator 中的 AppKit 背景拖动回退。
+    @ViewBuilder
+    private var draggableWoodConsoleSurface: some View {
+        if #available(macOS 15.0, *) {
+            woodConsoleSurface
+                .contentShape(
+                    RoundedRectangle(
+                        cornerRadius: AppConstants.UserInterface.widgetCornerRadius,
+                        style: .continuous
+                    )
+                )
+                .gesture(WindowDragGesture(), including: .gesture)
+        } else {
+            woodConsoleSurface
         }
     }
 

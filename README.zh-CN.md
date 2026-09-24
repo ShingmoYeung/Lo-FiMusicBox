@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="#-下载与安装"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-c48a5b?style=flat-square"></a>
+  <a href="#-下载与安装"><img alt="Version" src="https://img.shields.io/badge/version-1.0.1-c48a5b?style=flat-square"></a>
   <a href="#-开源协议"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"></a>
   <a href="#"><img alt="macOS" src="https://img.shields.io/badge/macOS-14%2B-lightgrey.svg?style=flat-square"></a>
   <a href="#"><img alt="Swift" src="https://img.shields.io/badge/Swift-6-orange.svg?style=flat-square"></a>

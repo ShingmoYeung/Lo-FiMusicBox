@@ -25,7 +25,7 @@ enum AppConstants {
         /// 「稍后提醒」的默认间隔。
         static let snoozeIntervalSeconds: TimeInterval = 24 * 60 * 60
         /// `swift run` 无 Info.plist 版本字段时的回退值（与打包脚本 APP_VERSION 对齐）。
-        static let developmentFallbackMarketingVersion = "1.0.0"
+        static let developmentFallbackMarketingVersion = "1.0.1"
         static let acceptHeaderName = "Accept"
         static let acceptHeaderValue = "application/vnd.github+json"
         static let userAgentHeaderName = "User-Agent"
