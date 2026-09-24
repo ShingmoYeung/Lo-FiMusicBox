@@ -157,7 +157,7 @@ private struct AppMenuBarContent: View {
 
         Button {
             mainWindowCoordinator.prepareForUserFacingWindow()
-            // 只展示营销版本；.version 置空避免系统 About 再拼出「1.0.0 (1)」构建号。
+            // 只展示营销版本；.version 置空避免系统 About 再拼出营销版本和构建号。
             NSApplication.shared.orderFrontStandardAboutPanel(options: [
                 .applicationVersion: AppVersion.marketingVersion,
                 .version: ""
